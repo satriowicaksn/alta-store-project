@@ -5,10 +5,10 @@ import (
 	"alta-store-project/models"
 )
 
-func GetCarts() (interface{}, error) {
+func GetCarts(userId int) (interface{}, error) {
 	var cart []models.Cart
 
-	if err := config.DB.Find(&cart).Error; err != nil {
+	if err := config.DB.Where("user_id = ?", userId).Find(&cart).Error; err != nil {
 		return nil, err
 	}
 	return cart, nil

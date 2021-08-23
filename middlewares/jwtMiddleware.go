@@ -4,7 +4,7 @@ import (
 	"alta-store-project/constants"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,12 +18,12 @@ func CreateToken(userId int) (string, error) {
 	return token.SignedString([]byte(constants.SECRET_JWT))
 }
 
-func ExtractTokenUserId(c echo.Context) int {
-	user := c.Get("user").(*jwt.Token)
+func ExtractTokenUserId(e echo.Context) int {
+	user := e.Get("user").(*jwt.Token)
 	if user.Valid {
 		claims := user.Claims.(jwt.MapClaims)
-		userId := claims["userId"].(int)
-		return userId
+		userID := int(claims["userId"].(float64))
+		return userID
 	}
 	return 0
 }

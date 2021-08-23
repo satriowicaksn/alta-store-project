@@ -37,4 +37,5 @@ func InitDB() {
 
 func InitMigrate() {
 	DB.AutoMigrate(&models.Product_categories{})
+	DB.AutoMigrate(&models.Product{})
 }

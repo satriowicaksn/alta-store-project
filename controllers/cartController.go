@@ -10,18 +10,48 @@ import (
 
 func GetCartController(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
-	_, getUserErr := database.GetDetailUsers(userId)
-	if getUserErr != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, getUserErr.Error())
-	}
 	carts, err := database.GetCarts(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	if carts == false {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  "success",
+			"message": "your shopping cart is empty",
+		})
+	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 		"cart":   carts,
-		"ID":     userId,
 	})
+}
 
+func AddCartController(c echo.Context) error {
+	userId := middlewares.ExtractTokenUserId(c)
+	payloadData := make(map[string]string)
+	payloadData["qty"] = c.FormValue("qty")
+	payloadData["product_id"] = c.FormValue("product_id")
+
+	carts, err := database.AddCartItems(payloadData, userId)
+	// cek := 0
+	// if cek == 0 {
+	// 	return c.JSON(http.StatusOK, map[string]interface{}{
+	// 		"status":  "fail",
+	// 		"message": "product not found or out of stock",
+	// 	})
+	// }
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if carts == false {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  "fail",
+			"message": "product not found or out of stock",
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"cart":   carts,
+	})
 }

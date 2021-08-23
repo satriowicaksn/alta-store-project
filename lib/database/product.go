@@ -3,6 +3,7 @@ package database
 import (
 	"alta-store-project/config"
 	"alta-store-project/models"
+	"time"
 )
 
 func GetProducts() (interface{}, error) {
@@ -24,4 +25,24 @@ func GetProductsByCategory(id int) (interface{}, error) {
 		return false, nil
 	}
 	return products, nil
+}
+
+func GetProductById(id int) (int, int, error) {
+	products := models.Product{}
+	query := config.DB.Where("product_id = ?", id).Find(&products)
+	if e := query.Error; e != nil {
+		return 0, 0, e
+	}
+	if query.RowsAffected == 0 {
+		return 0, 0, nil
+	}
+	return products.Stock, products.Price, nil
+}
+
+func UpdateProductStockById(id, stock, qty int) {
+	product := models.Product{
+		Stock:      stock - qty,
+		Updated_at: time.Now(),
+	}
+	config.DB.Where("product_id = ?", id).Updates(&product)
 }

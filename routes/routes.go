@@ -28,7 +28,11 @@ func New() *echo.Echo {
 	// JWT Group
 	r := e.Group("")
 	r.Use(middlewareEcho.JWT([]byte(constants.SECRET_JWT)))
+
+	// User Auth
 	r.GET("/users/:id", controllers.GetUserDetailController)
+
+	r.GET("/carts", controllers.GetCartController)
 
 	return e
 }

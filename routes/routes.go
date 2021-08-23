@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"alta-store-project/constants"
 	"alta-store-project/controllers"
 
 	"github.com/labstack/echo/v4"
+	middlewareEcho "github.com/labstack/echo/v4/middleware"
 )
 
 func New() *echo.Echo {
@@ -19,5 +21,14 @@ func New() *echo.Echo {
 	// Products
 	e.GET("/products", controllers.GetProductControllers)
 	e.GET("/products/:id", controllers.GetProductsByCategoryControllers)
+
+	// User Authentication
+	e.POST("/login", controllers.LoginUserController)
+
+	// JWT Group
+	r := e.Group("")
+	r.Use(middlewareEcho.JWT([]byte(constants.SECRET_JWT)))
+	r.GET("/users/:id", controllers.GetUserDetailController)
+
 	return e
 }

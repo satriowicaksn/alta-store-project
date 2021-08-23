@@ -66,3 +66,7 @@ func AddCartItems(payloadData map[string]string, userId int) (interface{}, error
 	UpdateProductStockById(productId, productStock, qty)
 	return cartItem, nil
 }
+
+func DeleteCartItems() {
+
+}

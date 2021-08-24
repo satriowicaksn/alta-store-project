@@ -46,3 +46,18 @@ func UpdateProductStockById(id, stock, qty int) {
 	}
 	config.DB.Where("product_id = ?", id).Updates(&product)
 }
+
+func ReturnStock(product_id, qty int) {
+	product := models.Product{}
+	stock := 0
+	getQuery := config.DB.Where("product_id = ?", product_id).Find(&product)
+
+	if getQuery.RowsAffected > 0 {
+		stock = product.Stock
+		newStock := models.Product{
+			Stock:      stock + qty,
+			Updated_at: time.Now(),
+		}
+		config.DB.Where("product_id = ?", product_id).Updates(&newStock)
+	}
+}

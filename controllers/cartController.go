@@ -52,7 +52,7 @@ func AddCartController(c echo.Context) error {
 func DeleteCartController(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
 	cartItemId, _ := strconv.Atoi(c.Param("id"))
-	validate, err := database.ValidateCartItems(cartItemId, userId)
+	validate, validateItem, err := database.ValidateCartItems(cartItemId, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -62,6 +62,7 @@ func DeleteCartController(c echo.Context) error {
 			"message": "You do not have access to delete this data",
 		})
 	}
+	database.ReturnStock(validateItem["product_id"], validateItem["qty"])
 	database.DeleteCartItems(cartItemId)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status":  "success",

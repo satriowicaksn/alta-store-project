@@ -75,15 +75,18 @@ func DeleteCartItems(cart_item_id int) (interface{}, error) {
 	return true, nil
 }
 
-func ValidateCartItems(cart_item_id, userId int) (bool, error) {
+func ValidateCartItems(cartItemId, userId int) (bool, map[string]int, error) {
 	cartId := CheckCart(userId)
 	cartItem := models.Cart_item{}
-	query := config.DB.Where("cart_item_id = ?", cart_item_id).Find(&cartItem)
+	query := config.DB.Where("cart_item_id = ?", cartItemId).Find(&cartItem)
 
+	returnItem := make(map[string]int)
 	if query.Error != nil {
-		return false, query.Error
-	} else if cartItem.Cart_id != cartId || query.RowsAffected == 0 {
-		return false, nil
+		return false, returnItem, query.Error
+	} else if cartItem.Cart_id != cartId {
+		return false, returnItem, nil
 	}
-	return true, nil
+	returnItem["product_id"] = cartItem.Product_id
+	returnItem["qty"] = cartItem.Qty
+	return true, returnItem, nil
 }

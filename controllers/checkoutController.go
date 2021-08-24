@@ -45,3 +45,22 @@ func GetCheckoutByIdController(c echo.Context) error {
 		"data":   checkout,
 	})
 }
+
+func PostCheckoutByIdController(c echo.Context) error {
+	userId := middlewares.ExtractTokenUserId(c)
+	cartItemId, _ := strconv.Atoi(c.Param("id"))
+	checkout, err := database.CheckoutItemById(cartItemId, userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if checkout == false {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": "your requested data was not found",
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data":   checkout,
+	})
+}

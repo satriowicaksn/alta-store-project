@@ -16,3 +16,9 @@ type Payment struct {
 type Uuid struct {
 	Uuid string `json:"uuid"`
 }
+
+type Payment_method struct {
+	Payment_method_id     int    `json:"payment_method_id" gorm:"primaryKey"`
+	Payment_method_name   string `json:"payment_method_name"`
+	Payment_method_number string `json:"payment_method_number"`
+}

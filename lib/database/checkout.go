@@ -10,6 +10,12 @@ func GetCheckoutTotal(userId int) (interface{}, error) {
 	checkout := models.Checkout{}
 	cartId := CheckCart(userId)
 	query := config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(price*qty) AS amount FROM cart_items WHERE cart_id = ?", cartId).Find(&checkout)
+
+	cartItem := []models.Cart_item{}
+	config.DB.Where("cart_id = ?", cartId).Find(&cartItem)
+	checkout.Checkout_id = cartId
+	checkout.Checkout_item = cartItem
+
 	checkout.Product = "All in your cart"
 	if query.Error != nil {
 		return nil, query.Error
@@ -22,7 +28,12 @@ func GetCheckoutTotal(userId int) (interface{}, error) {
 
 func GetCheckoutTotalById(cartItemId, userId int) (interface{}, error) {
 	checkout := models.Checkout{}
-	query := config.DB.Raw("SELECT qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&checkout)
+	query := config.DB.Raw("SELECT cart_id AS checkout_id, qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&checkout)
+
+	cartItem := []models.Cart_item{}
+	config.DB.Where("cart_item_id = ?", cartItemId).Find(&cartItem)
+	checkout.Checkout_item = cartItem
+
 	if query.Error != nil {
 		return nil, query.Error
 	}

@@ -44,6 +44,8 @@ func New() *echo.Echo {
 
 	// Payment
 	r.GET("/payment_method", controllers.GetPaymentMethodController)
-
+	r.GET("/payment", controllers.GetPendingPaymentController)
+	r.GET("/payment_history", controllers.GetPaymentHistoryController)
+	r.POST("/payment", controllers.PostPaymentController)
 	return e
 }

@@ -31,8 +31,10 @@ func New() *echo.Echo {
 
 	// User Auth
 	r.GET("/users/:id", controllers.GetUserDetailController)
+
+	// Shopping Cart
 	r.POST("/carts", controllers.AddCartController)
 	r.GET("/carts", controllers.GetCartController)
-
+	r.DELETE("/carts:id", controllers.DeleteCartController)
 	return e
 }

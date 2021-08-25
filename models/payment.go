@@ -14,6 +14,21 @@ type Payment struct {
 	Payment_item   []Payment_item `json:"payment_item" gorm:"foreignKey:Payment_id;references:Payment_id"`
 }
 
+type Payment_item struct {
+	Payment_item_id int    `json:"payment_item_id"`
+	Payment_id      string `json:"payment_id"`
+	Product_id      int    `json:"product_id"`
+	Price           int    `json:"price"`
+	Qty             int    `json:"qty"`
+}
+
+type Payment_history struct {
+	Payment_id          string    `json:"payment_id"`
+	Payment_method_name string    `json:"payment_method"`
+	Amount              int       `json:"amount"`
+	Payed_at            time.Time `json:"payed_at"`
+}
+
 type Uuid struct {
 	Uuid string `json:"uuid"`
 }

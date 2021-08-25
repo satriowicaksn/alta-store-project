@@ -29,10 +29,10 @@ func PostPaymentController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	if payment == false {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status":  "success",
-			"message": "Your payment was not processed because the requested data is incomplete",
+	if payment == "Payment method invalid" || payment == "This bill has been paid" || payment == "The bill you want to pay was not found" {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": payment,
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{

@@ -31,8 +31,21 @@ func New() *echo.Echo {
 
 	// User Auth
 	r.GET("/users/:id", controllers.GetUserDetailController)
+
+	// Shopping Cart
 	r.POST("/carts", controllers.AddCartController)
 	r.GET("/carts", controllers.GetCartController)
+	r.DELETE("/carts/:id", controllers.DeleteCartController)
 
+	// Checkout
+	r.GET("/checkout", controllers.GetCheckoutTotalController)
+	r.GET("/checkout/:id", controllers.GetCheckoutByIdController)
+	r.POST("/checkout", controllers.PostCheckoutController)
+
+	// Payment
+	r.GET("/payment_method", controllers.GetPaymentMethodController)
+	r.GET("/payment", controllers.GetPendingPaymentController)
+	r.GET("/payment_history", controllers.GetPaymentHistoryController)
+	r.POST("/payment", controllers.PostPaymentController)
 	return e
 }

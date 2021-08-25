@@ -46,10 +46,14 @@ func GetCheckoutByIdController(c echo.Context) error {
 	})
 }
 
-func PostCheckoutByIdController(c echo.Context) error {
+func PostCheckoutController(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
-	cartItemId, _ := strconv.Atoi(c.Param("id"))
-	checkout, err := database.CheckoutItemById(cartItemId, userId)
+	cartItemId := c.FormValue("cart_id")
+	if cartItemId == "all" || cartItemId == "" {
+		cartItemId = "0"
+	}
+	cartItemIdInt, _ := strconv.Atoi(cartItemId)
+	checkout, err := database.CheckoutItem(cartItemIdInt, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

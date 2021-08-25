@@ -1,0 +1,1142 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>config: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">alta-store-project/config/config.go (62.5%)</option>
+				
+				<option value="file1">alta-store-project/controllers/cartController.go (0.0%)</option>
+				
+				<option value="file2">alta-store-project/controllers/checkoutController.go (0.0%)</option>
+				
+				<option value="file3">alta-store-project/controllers/paymentController.go (0.0%)</option>
+				
+				<option value="file4">alta-store-project/controllers/productCategoriesController.go (0.0%)</option>
+				
+				<option value="file5">alta-store-project/controllers/productController.go (27.3%)</option>
+				
+				<option value="file6">alta-store-project/controllers/userController.go (0.0%)</option>
+				
+				<option value="file7">alta-store-project/lib/database/cart.go (0.0%)</option>
+				
+				<option value="file8">alta-store-project/lib/database/checkout.go (0.0%)</option>
+				
+				<option value="file9">alta-store-project/lib/database/payment.go (0.0%)</option>
+				
+				<option value="file10">alta-store-project/lib/database/product.go (11.1%)</option>
+				
+				<option value="file11">alta-store-project/lib/database/productCategories.go (0.0%)</option>
+				
+				<option value="file12">alta-store-project/lib/database/user.go (0.0%)</option>
+				
+				<option value="file13">alta-store-project/main.go (0.0%)</option>
+				
+				<option value="file14">alta-store-project/middlewares/jwtMiddleware.go (0.0%)</option>
+				
+				<option value="file15">alta-store-project/routes/routes.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package config
+
+import (
+        "alta-store-project/models"
+        "fmt"
+
+        "gorm.io/driver/mysql"
+        "gorm.io/gorm"
+)
+
+var DB *gorm.DB
+
+func InitDB() <span class="cov8" title="1">{
+        config := map[string]string{
+                "DB_Username": "satrio",
+                "DB_Password": "satrio12345",
+                "DB_Port":     "3306",
+                "DB_Host":     "127.0.0.1",
+                "DB_Name":     "alta_store",
+        }
+
+        connectionString :=
+                fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&amp;parseTime=True&amp;loc=Local",
+                        config["DB_Username"],
+                        config["DB_Password"],
+                        config["DB_Host"],
+                        config["DB_Port"],
+                        config["DB_Name"])
+
+        var err error
+        DB, err = gorm.Open(mysql.Open(connectionString), &amp;gorm.Config{})
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+}
+
+func InitMigrate() <span class="cov0" title="0">{
+        DB.AutoMigrate(&amp;models.Product_categories{})
+        DB.AutoMigrate(&amp;models.Product{})
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "alta-store-project/middlewares"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetCartController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        carts, err := database.GetCarts(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusOK, map[string]interface{}{
+                        "status":  "success",
+                        "message": "your shopping cart is empty",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   carts,
+        })</span>
+}
+
+func AddCartController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        payloadData := make(map[string]string)
+        payloadData["qty"] = c.FormValue("qty")
+        payloadData["product_id"] = c.FormValue("product_id")
+
+        carts, err := database.AddCartItems(payloadData, userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusOK, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "product not found or out of stock",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   carts,
+        })</span>
+}
+
+func DeleteCartController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        cartItemId, _ := strconv.Atoi(c.Param("id"))
+        validate, validateItem, err := database.ValidateCartItems(cartItemId, userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if validate == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusForbidden, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "You do not have access to delete this data",
+                })
+        }</span>
+        <span class="cov0" title="0">database.ReturnStock(validateItem["product_id"], validateItem["qty"])
+        database.DeleteCartItems(cartItemId)
+        return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":  "success",
+                "message": "Product has been removed from your shopping cart",
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "alta-store-project/middlewares"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetCheckoutTotalController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        checkouts, err := database.GetCheckoutTotal(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if checkouts == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusOK, map[string]interface{}{
+                        "status":  "success",
+                        "message": "your shopping cart is empty",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   checkouts,
+        })</span>
+}
+
+func GetCheckoutByIdController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        cartItemId, _ := strconv.Atoi(c.Param("id"))
+        checkout, err := database.GetCheckoutTotalById(cartItemId, userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if checkout == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "your requested data was not found",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   checkout,
+        })</span>
+}
+
+func PostCheckoutController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        cartItemId := c.FormValue("cart_id")
+        if cartItemId == "all" || cartItemId == "" </span><span class="cov0" title="0">{
+                cartItemId = "0"
+        }</span>
+        <span class="cov0" title="0">cartItemIdInt, _ := strconv.Atoi(cartItemId)
+        checkout, err := database.CheckoutItem(cartItemIdInt, userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if checkout == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "your requested data was not found",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   checkout,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "alta-store-project/middlewares"
+        "net/http"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetPaymentMethodController(c echo.Context) error <span class="cov0" title="0">{
+        paymentMethod, err := database.GetPaymentMethod()
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   paymentMethod,
+        })</span>
+}
+
+func PostPaymentController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        payloadData := make(map[string]string)
+        payloadData["payment_id"] = c.FormValue("payment_id")
+        payloadData["amount"] = c.FormValue("amount")
+        payloadData["payment_method"] = c.FormValue("payment_method")
+        payment, err := database.PostPayment(userId, payloadData)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if payment == "Payment method invalid" || payment == "This bill has been paid" || payment == "The bill you want to pay was not found" </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, map[string]interface{}{
+                        "status":  "fail",
+                        "message": payment,
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   payment,
+        })</span>
+}
+
+func GetPendingPaymentController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        payment, err := database.GetPendingPayment(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   payment,
+        })</span>
+}
+
+func GetPaymentHistoryController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        payment, err := database.GetPaymentHistory(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "data":   payment,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetProductCategoriesControllers(c echo.Context) error <span class="cov0" title="0">{
+        categories, err := database.GetProductCategories()
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":     "success",
+                "categories": categories,
+        })</span>
+}
+
+func GetProductCategoriesByIdControllers(c echo.Context) error <span class="cov0" title="0">{
+        id, _ := strconv.Atoi(c.Param("id"))
+        categories, err := database.GetProductCategoriesById(id)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if categories == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "requested category was not found",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":     "success",
+                "categories": categories,
+        })</span>
+}
+
+func PostProductCategories(c echo.Context) error <span class="cov0" title="0">{
+        payloadData := make(map[string]string)
+        payloadData["category_name"] = c.FormValue("category_name")
+        categories, err := database.CreateProductCategories(payloadData)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":  "success",
+                "message": "new category has created",
+                "data":    categories,
+        })</span>
+}
+
+func PutProductCategoriesById(c echo.Context) error <span class="cov0" title="0">{
+        id, _ := strconv.Atoi(c.Param("id"))
+        payloadData := make(map[string]string)
+        payloadData["category_name"] = c.FormValue("category_name")
+        categories, err := database.UpdateProductCategories(payloadData, id)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":  "success",
+                "message": "category has updated",
+                "data":    categories,
+        })</span>
+}
+
+func DeleteProductCategoriesById(c echo.Context) error <span class="cov0" title="0">{
+        id, _ := strconv.Atoi(c.Param("id"))
+        database.DeleteProductCategories(id)
+        return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":  "success",
+                "message": "category has deleted",
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetProductControllers(c echo.Context) error <span class="cov8" title="1">{
+        products, err := database.GetProducts()
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":   "success",
+                "products": products,
+        })</span>
+}
+
+func GetProductsByCategoryControllers(c echo.Context) error <span class="cov0" title="0">{
+        id, _ := strconv.Atoi(c.Param("id"))
+        products, err := database.GetProductsByCategory(id)
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+        <span class="cov0" title="0">if products == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusOK, map[string]interface{}{
+                        "status":  "fail",
+                        "message": "products with requested category was not found",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":   "success",
+                "products": products,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "alta-store-project/models"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+)
+
+func LoginUserController(c echo.Context) error <span class="cov0" title="0">{
+        user := models.Users{}
+        c.Bind(&amp;user)
+        _, e := database.LoginUsers(&amp;user)
+        if e != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, e.Error())
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status":  "login successfull",
+                "user_id": user.User_id,
+                "token":   user.Token,
+        })</span>
+}
+
+func GetUserDetailController(c echo.Context) error <span class="cov0" title="0">{
+        id, err := strconv.Atoi(c.Param("id"))
+
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+
+        <span class="cov0" title="0">users, err := database.GetDetailUsers((id))
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+        }</span>
+
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+                "status": "success",
+                "users":  users,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+        "strconv"
+)
+
+func GetCarts(userId int) (interface{}, error) <span class="cov0" title="0">{
+        var cart_item []models.Cart_item
+        cartId := CheckCart(userId)
+        query := config.DB.Where("cart_id = ?", cartId).Find(&amp;cart_item)
+        if err := query.Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return cart_item, nil</span>
+}
+
+func CheckCart(userId int) int <span class="cov0" title="0">{
+        cart := models.Cart{
+                User_id:    userId,
+                Cart_total: 0,
+        }
+        query := config.DB.Where("user_id = ?", userId).Find(&amp;cart)
+        if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                config.DB.Create(&amp;cart)
+                CheckCart(userId)
+        }</span>
+        <span class="cov0" title="0">return int(cart.Cart_id)</span>
+}
+
+func AddCartItems(payloadData map[string]string, userId int) (interface{}, error) <span class="cov0" title="0">{
+
+        cartId := CheckCart(userId)
+        productId, _ := strconv.Atoi(payloadData["product_id"])
+        productStock, productPrice, err := GetProductById(productId)
+        qty, _ := strconv.Atoi(payloadData["qty"])
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        // validasi cek apakah stock produk tidak ditemukan
+        <span class="cov0" title="0">if productStock == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+
+        // validasi cek apakah stock kurang
+        <span class="cov0" title="0">if productStock &lt; qty </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+
+        // masukan ke cart
+        <span class="cov0" title="0">cartItem := models.Cart_item{
+                Cart_id:    cartId,
+                Product_id: productId,
+                Qty:        qty,
+                Price:      productPrice,
+        }
+        addToCart := config.DB.Create(&amp;cartItem)
+        if addToCart.Error != nil </span><span class="cov0" title="0">{
+                return nil, addToCart.Error
+        }</span>
+        <span class="cov0" title="0">UpdateProductStockById(productId, productStock, qty)
+        return cartItem, nil</span>
+}
+
+func DeleteCartItems(cart_item_id int) (interface{}, error) <span class="cov0" title="0">{
+        var cartItem []models.Cart_item
+        if err := config.DB.Where("cart_item_id = ?", cart_item_id).Delete(&amp;cartItem).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return true, nil</span>
+}
+
+func ValidateCartItems(cartItemId, userId int) (bool, map[string]int, error) <span class="cov0" title="0">{
+        cartId := CheckCart(userId)
+        cartItem := models.Cart_item{}
+        query := config.DB.Where("cart_item_id = ?", cartItemId).Find(&amp;cartItem)
+
+        returnItem := make(map[string]int)
+        if query.Error != nil </span><span class="cov0" title="0">{
+                return false, returnItem, query.Error
+        }</span> else<span class="cov0" title="0"> if cartItem.Cart_id != cartId </span><span class="cov0" title="0">{
+                return false, returnItem, nil
+        }</span>
+        <span class="cov0" title="0">returnItem["product_id"] = cartItem.Product_id
+        returnItem["qty"] = cartItem.Qty
+        return true, returnItem, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+        "time"
+)
+
+func GetCheckoutTotal(userId int) (interface{}, error) <span class="cov0" title="0">{
+        checkout := models.Checkout{}
+        cartId := CheckCart(userId)
+        query := config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(price*qty) AS amount FROM cart_items WHERE cart_id = ?", cartId).Find(&amp;checkout)
+
+        cartItem := []models.Cart_item{}
+        config.DB.Where("cart_id = ?", cartId).Find(&amp;cartItem)
+        checkout.Checkout_id = cartId
+        checkout.Checkout_item = cartItem
+
+        checkout.Product = "All in your cart"
+        if query.Error != nil </span><span class="cov0" title="0">{
+                return nil, query.Error
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return checkout, nil</span>
+}
+
+func GetCheckoutTotalById(cartItemId, userId int) (interface{}, error) <span class="cov0" title="0">{
+        checkout := models.Checkout{}
+        query := config.DB.Raw("SELECT cart_id AS checkout_id, qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&amp;checkout)
+
+        cartItem := []models.Cart_item{}
+        config.DB.Where("cart_item_id = ?", cartItemId).Find(&amp;cartItem)
+        checkout.Checkout_item = cartItem
+
+        if query.Error != nil </span><span class="cov0" title="0">{
+                return nil, query.Error
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return checkout, nil</span>
+}
+
+func CheckoutItem(cartItemId, userId int) (interface{}, error) <span class="cov0" title="0">{
+        paymentId := CreatePaymentId()
+        cartId := CheckCart(userId)
+
+        // validasi apakah item yang direquest tersedia
+        cartItem := []models.Cart_item{}
+        // checkout all
+        cekItem := config.DB.Where("cart_id = ?", cartId).Find(&amp;cartItem)
+        if cekItem.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+
+        // checkout by cart item id
+        <span class="cov0" title="0">if cartItemId != 0 </span><span class="cov0" title="0">{
+                cekItem := config.DB.Where("cart_item_id = ?", cartItemId).Find(&amp;cartItem)
+                if cekItem.RowsAffected == 0 </span><span class="cov0" title="0">{
+                        return false, nil
+                }</span>
+        }
+
+        // dapatkan data item total dan amount untuk dimasukkan ke informasi payment
+        <span class="cov0" title="0">checkout := models.Checkout{}
+        if cartItemId != 0 </span><span class="cov0" title="0">{
+                // checkout by cart item id
+                config.DB.Raw("SELECT qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&amp;checkout)
+        }</span> else<span class="cov0" title="0"> {
+                // checkout all
+                config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_id = ?", cartId).Find(&amp;checkout)
+        }</span>
+
+        // masukkan informasi payment
+        <span class="cov0" title="0">payment := models.Payment{
+                Payment_id:     paymentId,
+                User_id:        userId,
+                Amount:         checkout.Amount,
+                Payment_status: 0,
+                Created_at:     time.Now(),
+                Expired_at:     time.Now().AddDate(0, 0, 1),
+        }
+        config.DB.Create(&amp;payment)
+
+        // masukan checkout item ke tabel payment items dengan perulangan
+        for _, item := range cartItem </span><span class="cov0" title="0">{
+                paymentItem := models.Payment_item{
+                        Payment_id: paymentId,
+                        Product_id: item.Product_id,
+                        Price:      item.Price,
+                        Qty:        item.Qty,
+                }
+                payment.Payment_item = append(payment.Payment_item, paymentItem) // append ke slice agar tampil di response
+                config.DB.Create(&amp;paymentItem)
+        }</span>
+        // end perulangan untuk input ke tabel payment items
+
+        // hapus semua data dari cart item
+
+        <span class="cov0" title="0">if cartItemId != 0 </span><span class="cov0" title="0">{
+                // jika checkout all
+                if err := config.DB.Where("cart_item_id = ?", cartItemId).Delete(&amp;cartItem).Error; err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        } else<span class="cov0" title="0"> {
+                // jika checkout berdasarkan cart item id
+                if err := config.DB.Where("cart_id = ?", cartId).Delete(&amp;cartItem).Error; err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return payment, nil</span>
+}
+
+// func CheckoutItemById(cartItemId, userId int) (interface{}, error) {
+//         paymentId := CreatePaymentId()
+
+//         // validasi apakah item yang direquest tersedia
+//         cartItem := models.Cart_item{}
+//         cekItem := config.DB.Where("cart_item_id = ?", cartItemId).Find(&amp;cartItem)
+//         if cekItem.RowsAffected == 0 {
+//                 return false, nil
+//         }
+
+//         // dapatkan data item total dan amount untuk dimasukkan ke informasi payment
+//         checkout := models.Checkout{}
+//         config.DB.Raw("SELECT qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&amp;checkout)
+
+//         // masukkan informasi payment ke tabel payments
+//         payment := models.Payment{
+//                 Payment_id:     paymentId,
+//                 User_id:        userId,
+//                 Amount:         checkout.Amount,
+//                 Payment_status: 0,
+//                 Created_at:     time.Now(),
+//                 Expired_at:     time.Now().AddDate(0, 0, 1),
+//         }
+//         config.DB.Create(&amp;payment)
+
+//         // masukkan checkout item ke tabel payment items
+//         paymentItem := models.Payment_item{
+//                 Payment_id:   paymentId,
+//                 Product_id:   cartItem.Product_id,
+//                 Product_name: checkout.Product,
+//                 Price:        cartItem.Price,
+//                 Qty:          cartItem.Qty,
+//         }
+//         payment.Payment_item = append(payment.Payment_item, paymentItem)
+//         config.DB.Create(&amp;paymentItem)
+
+//         // kosongkan cart item sesuai id yang di checkout
+//         if err := config.DB.Where("cart_item_id = ?", cartItemId).Delete(&amp;cartItem).Error; err != nil {
+//                 return nil, err
+//         }
+//         return payment, nil
+// }
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+        "strconv"
+        "time"
+)
+
+func CreatePaymentId() string <span class="cov0" title="0">{
+        UniqueID := models.Uuid{}
+        config.DB.Raw("SELECT uuid() as uuid").Scan(&amp;UniqueID)
+        return UniqueID.Uuid
+}</span>
+
+func GetPaymentMethod() (interface{}, error) <span class="cov0" title="0">{
+        var paymentMethod []models.Payment_method
+        if err := config.DB.Find(&amp;paymentMethod).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return paymentMethod, nil</span>
+}
+
+func GetPaymentHistory(userId int) (interface{}, error) <span class="cov0" title="0">{
+        var payment []models.Payment_history
+        if err := config.DB.Raw("SELECT payment_id, payment_method_name, amount, payed_at FROM payments LEFT JOIN payment_methods ON payments.payment_method = payment_methods.payment_method_id WHERE user_id = ? AND payment_status = 1", userId).Scan(&amp;payment).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return payment, nil</span>
+}
+
+func GetPendingPayment(userId int) (interface{}, error) <span class="cov0" title="0">{
+        var payment []models.Payment
+        if err := config.DB.Where("user_id = ? AND payment_status = 0", userId).Find(&amp;payment).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        // for _, payments := range payment {
+        //         paymentItem := []models.Payment_item{}
+        //         config.DB.Where("payment_id = ?", payments.Payment_id).Find(&amp;paymentItem)
+        //         payments.Payment_item = paymentItem
+        // }
+        <span class="cov0" title="0">return payment, nil</span>
+}
+
+func PostPayment(userId int, payloadData map[string]string) (interface{}, error) <span class="cov0" title="0">{
+        payment := models.Payment{}
+        payment_method, _ := strconv.Atoi(payloadData["payment_method"])
+        amount, _ := strconv.Atoi(payloadData["amount"])
+        check := config.DB.Where("payment_id = ? AND user_id = ? AND amount = ? AND payment_status = 0", payloadData["payment_id"], userId, amount).Find(&amp;payment)
+        isValid := CheckPaymentMethod(payment_method)
+        if !isValid </span><span class="cov0" title="0">{
+                // Jika payment method tidak valid
+                return "Payment method invalid", nil
+        }</span>
+        <span class="cov0" title="0">if check.Error != nil </span><span class="cov0" title="0">{
+                return nil, check.Error
+        }</span> else<span class="cov0" title="0"> if check.RowsAffected == 0 </span><span class="cov0" title="0">{
+                checkPayStatus := config.DB.Where("payment_id = ? AND user_id = ? AND amount = ? AND payment_status = 1", payloadData["payment_id"], userId, amount).Find(&amp;payment)
+                if checkPayStatus.RowsAffected &gt; 0 </span><span class="cov0" title="0">{
+                        return "This bill has been paid", nil
+                }</span>
+                <span class="cov0" title="0">return "The bill you want to pay was not found", nil</span>
+        }
+        <span class="cov0" title="0">paymentUpdate := models.Payment{
+                Payment_method: payment_method,
+                Payed_at:       time.Now(),
+                Payment_status: 1,
+        }
+        config.DB.Where("payment_id = ?", payloadData["payment_id"]).Updates(&amp;paymentUpdate)
+        return paymentUpdate, nil</span>
+}
+func CheckPaymentMethod(id int) bool <span class="cov0" title="0">{
+        paymentMethod := models.Payment_method{}
+        query := config.DB.Where("payment_method_id = ? ", id).Find(&amp;paymentMethod)
+        if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">return true</span>
+}
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+        "time"
+)
+
+func GetProducts() (interface{}, error) <span class="cov8" title="1">{
+        var products []models.Product
+
+        if e := config.DB.Find(&amp;products).Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov8" title="1">return products, nil</span>
+}
+
+func GetProductsByCategory(id int) (interface{}, error) <span class="cov0" title="0">{
+        var products []models.Product
+        query := config.DB.Where("product_category_id = ?", id).Find(&amp;products)
+        if e := query.Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return products, nil</span>
+}
+
+func GetProductById(id int) (int, int, error) <span class="cov0" title="0">{
+        products := models.Product{}
+        query := config.DB.Where("product_id = ?", id).Find(&amp;products)
+        if e := query.Error; e != nil </span><span class="cov0" title="0">{
+                return 0, 0, e
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return 0, 0, nil
+        }</span>
+        <span class="cov0" title="0">return products.Stock, products.Price, nil</span>
+}
+
+func UpdateProductStockById(id, stock, qty int) <span class="cov0" title="0">{
+        product := models.Product{
+                Stock:      stock - qty,
+                Updated_at: time.Now(),
+        }
+        config.DB.Where("product_id = ?", id).Updates(&amp;product)
+}</span>
+
+func ReturnStock(product_id, qty int) <span class="cov0" title="0">{
+        product := models.Product{}
+        stock := 0
+        getQuery := config.DB.Where("product_id = ?", product_id).Find(&amp;product)
+
+        if getQuery.RowsAffected &gt; 0 </span><span class="cov0" title="0">{
+                stock = product.Stock
+                newStock := models.Product{
+                        Stock:      stock + qty,
+                        Updated_at: time.Now(),
+                }
+                config.DB.Where("product_id = ?", product_id).Updates(&amp;newStock)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+        "time"
+)
+
+func GetProductCategories() (interface{}, error) <span class="cov0" title="0">{
+        var productCategories []models.Product_categories
+
+        if e := config.DB.Find(&amp;productCategories).Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov0" title="0">return productCategories, nil</span>
+
+}
+
+func GetProductCategoriesById(id int) (interface{}, error) <span class="cov0" title="0">{
+        var productCategories []models.Product_categories
+        query := config.DB.Where("category_id = ?", id).Find(&amp;productCategories)
+        if e := query.Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return productCategories, nil</span>
+}
+
+func CreateProductCategories(payloadData map[string]string) (interface{}, error) <span class="cov0" title="0">{
+        category := models.Product_categories{Category_name: payloadData["category_name"], Created_at: time.Now()}
+        if err := config.DB.Create(&amp;category).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return category, nil</span>
+}
+
+func UpdateProductCategories(payloadData map[string]string, id int) (interface{}, error) <span class="cov0" title="0">{
+        category := models.Product_categories{Category_name: payloadData["category_name"], Updated_at: time.Now()}
+        if err := config.DB.Where("category_id = ?", id).Updates(&amp;category).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return category, nil</span>
+}
+
+func DeleteProductCategories(id int) (interface{}, error) <span class="cov0" title="0">{
+        var productCategories []models.Product_categories
+        if err := config.DB.Where("category_id = ?", id).Delete(&amp;productCategories).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return true, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/middlewares"
+        "alta-store-project/models"
+)
+
+func GetDetailUsers(userId int) (interface{}, error) <span class="cov0" title="0">{
+        var user models.Users
+        if e := config.DB.Find(&amp;user, userId).Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov0" title="0">return user, nil</span>
+}
+
+func LoginUsers(user *models.Users) (interface{}, error) <span class="cov0" title="0">{
+        var err error
+        if err = config.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(user).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">user.Token, err = middlewares.CreateToken(int(user.User_id))
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">if err := config.DB.Save(user).Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">return user, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file13" style="display: none">package main
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/routes"
+        "fmt"
+)
+
+func main() <span class="cov0" title="0">{
+        config.InitDB()
+        e := routes.New()
+        e.Logger.Fatal(e.Start(":8000"))
+        fmt.Println("test midd")
+}</span>
+</pre>
+		
+		<pre class="file" id="file14" style="display: none">package middlewares
+
+import (
+        "alta-store-project/constants"
+        "time"
+
+        "github.com/golang-jwt/jwt"
+        "github.com/labstack/echo/v4"
+)
+
+func CreateToken(userId int) (string, error) <span class="cov0" title="0">{
+        claims := jwt.MapClaims{}
+        claims["authorized"] = true
+        claims["userId"] = userId
+        claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+        return token.SignedString([]byte(constants.SECRET_JWT))
+}</span>
+
+func ExtractTokenUserId(e echo.Context) int <span class="cov0" title="0">{
+        user := e.Get("user").(*jwt.Token)
+        if user.Valid </span><span class="cov0" title="0">{
+                claims := user.Claims.(jwt.MapClaims)
+                userID := int(claims["userId"].(float64))
+                return userID
+        }</span>
+        <span class="cov0" title="0">return 0</span>
+}
+</pre>
+		
+		<pre class="file" id="file15" style="display: none">package routes
+
+import (
+        "alta-store-project/constants"
+        "alta-store-project/controllers"
+
+        "github.com/labstack/echo/v4"
+        middlewareEcho "github.com/labstack/echo/v4/middleware"
+)
+
+func New() *echo.Echo <span class="cov0" title="0">{
+        e := echo.New()
+
+        // Product Categories
+        e.GET("/categories", controllers.GetProductCategoriesControllers)
+        e.GET("/categories/:id", controllers.GetProductCategoriesByIdControllers)
+        e.POST("/categories", controllers.PostProductCategories)
+        e.PUT("/categories/:id", controllers.PutProductCategoriesById)
+        e.DELETE("/categories/:id", controllers.DeleteProductCategoriesById)
+
+        // Products
+        e.GET("/products", controllers.GetProductControllers)
+        e.GET("/products/:id", controllers.GetProductsByCategoryControllers)
+
+        // User Authentication
+        e.POST("/login", controllers.LoginUserController)
+
+        // JWT Group
+        r := e.Group("")
+        r.Use(middlewareEcho.JWT([]byte(constants.SECRET_JWT)))
+
+        // User Auth
+        r.GET("/users/:id", controllers.GetUserDetailController)
+
+        // Shopping Cart
+        r.POST("/carts", controllers.AddCartController)
+        r.GET("/carts", controllers.GetCartController)
+        r.DELETE("/carts/:id", controllers.DeleteCartController)
+
+        // Checkout
+        r.GET("/checkout", controllers.GetCheckoutTotalController)
+        r.GET("/checkout/:id", controllers.GetCheckoutByIdController)
+        r.POST("/checkout", controllers.PostCheckoutController)
+
+        // Payment
+        r.GET("/payment_method", controllers.GetPaymentMethodController)
+        r.GET("/payment", controllers.GetPendingPaymentController)
+        r.GET("/payment_history", controllers.GetPaymentHistoryController)
+        r.POST("/payment", controllers.PostPaymentController)
+        return e
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

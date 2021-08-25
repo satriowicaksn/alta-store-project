@@ -70,7 +70,7 @@ func CheckoutItem(cartItemId, userId int) (interface{}, error) {
 		config.DB.Raw("SELECT qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_item_id = ?", cartItemId).Find(&checkout)
 	} else {
 		// checkout all
-		config.DB.Raw("SELECT qty AS item_total, (cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_id = ?", cartId).Find(&checkout)
+		config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_id = ?", cartId).Find(&checkout)
 	}
 
 	// masukkan informasi payment

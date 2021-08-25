@@ -40,7 +40,7 @@ func New() *echo.Echo {
 	// Checkout
 	r.GET("/checkout", controllers.GetCheckoutTotalController)
 	r.GET("/checkout/:id", controllers.GetCheckoutByIdController)
-	r.POST("/checkout/:id", controllers.PostCheckoutByIdController)
+	r.POST("/checkout", controllers.PostCheckoutController)
 
 	// Payment
 	r.GET("/payment_method", controllers.GetPaymentMethodController)

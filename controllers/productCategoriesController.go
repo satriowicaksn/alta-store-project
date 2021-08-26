@@ -34,8 +34,8 @@ func GetProductCategoriesByIdControllers(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":     "success",
-		"categories": categories,
+		"status": "success",
+		"data":   categories,
 	})
 }
 
@@ -47,7 +47,7 @@ func PostProductCategories(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"status":  "success",
 		"message": "new category has created",
 		"data":    categories,

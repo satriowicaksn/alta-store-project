@@ -3,9 +3,8 @@ package models
 import "time"
 
 type Cart struct {
-	Cart_id    uint `gorm:"primaryKey"`
-	User_id    int  `json:"user_id" form:"user_id"`
-	Cart_total int  `json:"cart_total" form:"cart_total"`
+	Cart_id uint `gorm:"primaryKey"`
+	User_id int  `json:"user_id" form:"user_id"`
 }
 
 type Cart_item struct {

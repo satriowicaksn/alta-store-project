@@ -22,8 +22,7 @@ func GetCarts(userId int) (interface{}, error) {
 
 func CheckCart(userId int) int {
 	cart := models.Cart{
-		User_id:    userId,
-		Cart_total: 0,
+		User_id: userId,
 	}
 	query := config.DB.Where("user_id = ?", userId).Find(&cart)
 	if query.RowsAffected == 0 {

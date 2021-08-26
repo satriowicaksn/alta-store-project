@@ -8,8 +8,11 @@ import (
 
 func GetDetailUsers(userId int) (interface{}, error) {
 	var user models.Users
-	if e := config.DB.Find(&user, userId).Error; e != nil {
-		return nil, e
+	query := config.DB.Find(&user, userId)
+	if query.Error != nil {
+		return nil, query.Error
+	} else if query.RowsAffected == 0 {
+		return false, nil
 	}
 	return user, nil
 }

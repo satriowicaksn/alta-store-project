@@ -23,16 +23,24 @@ func GetPaymentMethod() (interface{}, error) {
 
 func GetPaymentHistory(userId int) (interface{}, error) {
 	var payment []models.Payment_history
-	if err := config.DB.Raw("SELECT payment_id, payment_method_name, amount, payed_at FROM payments LEFT JOIN payment_methods ON payments.payment_method = payment_methods.payment_method_id WHERE user_id = ? AND payment_status = 1", userId).Scan(&payment).Error; err != nil {
+	query := config.DB.Raw("SELECT payment_id, payment_method_name, amount, payed_at FROM payments LEFT JOIN payment_methods ON payments.payment_method = payment_methods.payment_method_id WHERE user_id = ? AND payment_status = 1", userId).Scan(&payment)
+	if err := query.Error; err != nil {
 		return nil, err
+	}
+	if query.RowsAffected == 0 {
+		return false, nil
 	}
 	return payment, nil
 }
 
 func GetPendingPayment(userId int) (interface{}, error) {
 	var payment []models.Payment
-	if err := config.DB.Where("user_id = ? AND payment_status = 0", userId).Find(&payment).Error; err != nil {
+	query := config.DB.Where("user_id = ? AND payment_status = 0", userId).Find(&payment)
+	if err := query.Error; err != nil {
 		return nil, err
+	}
+	if query.RowsAffected == 0 {
+		return false, nil
 	}
 	// for _, payments := range payment {
 	// 	paymentItem := []models.Payment_item{}

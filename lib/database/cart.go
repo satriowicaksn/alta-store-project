@@ -3,6 +3,7 @@ package database
 import (
 	"alta-store-project/config"
 	"alta-store-project/models"
+	"fmt"
 	"strconv"
 )
 
@@ -60,6 +61,7 @@ func AddCartItems(payloadData map[string]string, userId int) (interface{}, error
 		Price:      productPrice,
 	}
 	addToCart := config.DB.Create(&cartItem)
+	fmt.Println(cartItem)
 	if addToCart.Error != nil {
 		return nil, addToCart.Error
 	}

@@ -24,15 +24,28 @@ func LoginUserController(c echo.Context) error {
 }
 
 func GetUserDetailController(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
 
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	// penambahan
+	params := c.Param("id")
+	id := 0
+	if params != "" {
+		idInt, e := strconv.Atoi(params)
+		if e != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, e.Error())
+		}
+		id = idInt
 	}
+	// end penambahan
 
 	users, err := database.GetDetailUsers((id))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if users == false {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": "user with requested ID was not found",
+		})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{

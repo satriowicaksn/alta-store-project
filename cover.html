@@ -67,7 +67,7 @@
 				
 				<option value="file5">alta-store-project/controllers/productController.go (81.8%)</option>
 				
-				<option value="file6">alta-store-project/controllers/userController.go (36.8%)</option>
+				<option value="file6">alta-store-project/controllers/userController.go (84.2%)</option>
 				
 				<option value="file7">alta-store-project/lib/database/cart.go (0.0%)</option>
 				
@@ -79,11 +79,11 @@
 				
 				<option value="file11">alta-store-project/lib/database/productCategories.go (0.0%)</option>
 				
-				<option value="file12">alta-store-project/lib/database/user.go (31.2%)</option>
+				<option value="file12">alta-store-project/lib/database/user.go (75.0%)</option>
 				
 				<option value="file13">alta-store-project/main.go (0.0%)</option>
 				
-				<option value="file14">alta-store-project/middlewares/jwtMiddleware.go (0.0%)</option>
+				<option value="file14">alta-store-project/middlewares/jwtMiddleware.go (50.0%)</option>
 				
 				<option value="file15">alta-store-project/routes/routes.go (0.0%)</option>
 				
@@ -496,14 +496,14 @@ import (
         "github.com/labstack/echo/v4"
 )
 
-func LoginUserController(c echo.Context) error <span class="cov0" title="0">{
+func LoginUserController(c echo.Context) error <span class="cov8" title="1">{
         user := models.Users{}
         c.Bind(&amp;user)
         _, e := database.LoginUsers(&amp;user)
         if e != nil </span><span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, e.Error())
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
                 "status":  "login successfull",
                 "user_id": user.User_id,
                 "token":   user.Token,
@@ -515,12 +515,12 @@ func GetUserDetailController(c echo.Context) error <span class="cov8" title="1">
         // penambahan
         params := c.Param("id")
         id := 0
-        if params != "" </span><span class="cov0" title="0">{
+        if params != "" </span><span class="cov8" title="1">{
                 idInt, e := strconv.Atoi(params)
                 if e != nil </span><span class="cov0" title="0">{
                         return echo.NewHTTPError(http.StatusBadRequest, e.Error())
                 }</span>
-                <span class="cov0" title="0">id = idInt</span>
+                <span class="cov8" title="1">id = idInt</span>
         }
         // end penambahan
 
@@ -535,7 +535,7 @@ func GetUserDetailController(c echo.Context) error <span class="cov8" title="1">
                 })
         }</span>
 
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
                 "status": "success",
                 "users":  users,
         })</span>
@@ -1015,22 +1015,22 @@ func GetDetailUsers(userId int) (interface{}, error) <span class="cov8" title="1
         }</span> else<span class="cov8" title="1"> if query.RowsAffected == 0 </span><span class="cov8" title="1">{
                 return false, nil
         }</span>
-        <span class="cov0" title="0">return user, nil</span>
+        <span class="cov8" title="1">return user, nil</span>
 }
 
-func LoginUsers(user *models.Users) (interface{}, error) <span class="cov0" title="0">{
+func LoginUsers(user *models.Users) (interface{}, error) <span class="cov8" title="1">{
         var err error
         if err = config.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(user).Error; err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">user.Token, err = middlewares.CreateToken(int(user.User_id))
+        <span class="cov8" title="1">user.Token, err = middlewares.CreateToken(int(user.User_id))
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">if err := config.DB.Save(user).Error; err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if err := config.DB.Save(user).Error; err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
-        <span class="cov0" title="0">return user, nil</span>
+        <span class="cov8" title="1">return user, nil</span>
 }
 </pre>
 		
@@ -1061,7 +1061,7 @@ import (
         "github.com/labstack/echo/v4"
 )
 
-func CreateToken(userId int) (string, error) <span class="cov0" title="0">{
+func CreateToken(userId int) (string, error) <span class="cov8" title="1">{
         claims := jwt.MapClaims{}
         claims["authorized"] = true
         claims["userId"] = userId

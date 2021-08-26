@@ -17,9 +17,56 @@ func LoginUserController(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, e.Error())
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":  "login successfull",
-		"user_id": user.User_id,
-		"token":   user.Token,
+		"status": "login successfull",
+		"token":  user.Token,
+	})
+}
+
+func RegisterUserController(c echo.Context) error {
+	u := new(models.Users)
+	if err := c.Bind(u); err != nil {
+		return err
+	}
+
+	// Validasi input harus terisi semuanya
+	validateInput, field := database.ValidateInput(u)
+	if !validateInput {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": field + " field is required !!",
+		})
+	}
+
+	// validasi registered email
+	validateEmail, err := database.ValidateEmail(u.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else if !validateEmail {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": "Email is already registered, please use another email",
+		})
+	}
+
+	// validasi registered phone number
+	validatePhone, err := database.ValidatePhone(u.Phone)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else if !validatePhone {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "fail",
+			"message": "Phone number is already registered, please use another phone number",
+		})
+	}
+
+	// input ke database
+	registered, err := database.RegisterUser(u)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusCreated, map[string]interface{}{
+		"status": "Register success",
+		"data":   registered,
 	})
 }
 

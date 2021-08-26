@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"alta-store-project/middlewares"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +13,8 @@ func TestGetCartController(t *testing.T) {
 	t.Run("Test case 1, valid test", func(t *testing.T) {
 		e := InitEcho()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		var bearer = "Bearer " + "ansadhahfbhahfbahfba"
+		var token, _ = middlewares.CreateToken(2)
+		var bearer = "Bearer " + token
 		req.Header.Add("Authorization", bearer)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)

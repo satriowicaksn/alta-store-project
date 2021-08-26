@@ -46,6 +46,11 @@ func GetPendingPaymentController(c echo.Context) error {
 	payment, err := database.GetPendingPayment(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else if payment == false {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  "success",
+			"message": "You don't have pending payment",
+		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
@@ -58,6 +63,11 @@ func GetPaymentHistoryController(c echo.Context) error {
 	payment, err := database.GetPaymentHistory(userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	} else if payment == false {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  "success",
+			"message": "You don't have payment history",
+		})
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",

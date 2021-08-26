@@ -19,36 +19,6 @@ func InitEcho() *echo.Echo {
 }
 
 func TestGetProductControllers(t *testing.T) {
-	// var testCases = []struct {
-	// 	name                 string
-	// 	path                 string
-	// 	expectStatus         int
-	// 	expectBodyStartsWith string
-	// }{
-	// 	{
-	// 		name:                 "berhasil",
-	// 		path:                 "/products",
-	// 		expectBodyStartsWith: "{\"products\":[",
-	// 		expectStatus:         http.StatusOK,
-	// 	},
-	// }
-
-	// e := InitEcho()
-	// req := httptest.NewRequest(http.MethodGet, "/", nil)
-	// rec := httptest.NewRecorder()
-	// c := e.NewContext(req, rec)
-
-	// for _, testCase := range testCases {
-	// 	c.SetPath(testCase.path)
-
-	// 	// Assertions
-	// 	if assert.NoError(t, GetProductControllers(c)) {
-	// 		assert.Equal(t, http.StatusOK, rec.Code)
-	// 		body := rec.Body.String()
-	// 		assert.True(t, strings.HasPrefix(body, testCase.expectBodyStartsWith))
-	// 	}
-	// }
-
 	t.Run("test case 1, valid test", func(t *testing.T) {
 		e := InitEcho()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -64,5 +34,36 @@ func TestGetProductControllers(t *testing.T) {
 			// assert.True(t, strings.HasPrefix(body, testCase.expectBodyStartsWith))
 		}
 	})
+}
+func TestGetProductsByCategoryControllers(t *testing.T) {
+	t.Run("Test Case 1, Valid Category Id", func(t *testing.T) {
+		e := InitEcho()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
+		c.SetPath("/products/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("1")
+
+		// Assertions
+		if assert.NoError(t, GetProductsByCategoryControllers(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	})
+	t.Run("Test Case 2, Invalid Category Id", func(t *testing.T) {
+		e := InitEcho()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		c.SetPath("/products/:id")
+		c.SetParamNames("id")
+		c.SetParamValues("19")
+
+		// Assertions
+		if assert.NoError(t, GetProductsByCategoryControllers(c)) {
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+		}
+	})
 }

@@ -1,6 +1,9 @@
 name: Publish Docker image do Docker Hub
 
 on:
+  push: 
+    branches:
+      - 'master'
   release:
     types: [published]
 

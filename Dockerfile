@@ -13,6 +13,6 @@ RUN go build -o main
 # Reduce Size without GO Image
 FROM alpine:latest
 WORKDIR /root/
-COPY --from=builder /app/main .
+COPY --from=builder /app .
 EXPOSE 8080
 CMD ["/app/main"]

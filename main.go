@@ -21,4 +21,5 @@ func main() {
 	config.InitMigrate()
 	e := routes.New()
 	e.Logger.Fatal(e.Start(":"+port))
+	fmt.Println("ALTA STORE")
 }

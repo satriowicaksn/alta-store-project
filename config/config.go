@@ -12,10 +12,10 @@ var DB *gorm.DB
 
 func InitDB() {
 	config := map[string]string{
-		"DB_Username": "u6481136_satrio",
-		"DB_Password": "satrio12345",
+		"DB_Username": ${{ secrets.DATABASE_USERNAME }},
+		"DB_Password": ${{ secrets.DATABASE_PASSWORD }},
 		"DB_Port":     "3306",
-		"DB_Host":     "153.92.10.201",
+		"DB_Host":     ${{ secrets.DATABASE_HOST }},
 		"DB_Name":     "u6481136_alta_store",
 	}
 

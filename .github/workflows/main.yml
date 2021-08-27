@@ -1,0 +1,24 @@
+name: Build Docker Image And Push To Docker Hub
+
+on:
+  push: 
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: satriowicaksono 
+        DOCKER_PASSWORD: Gedhekcz82$  
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: docker build golang
+      run: |
+        docker build . -t satriowicaksono/alta-store-project:1.0.0
+    - name: docker push
+      run: |
+        docker push satriowicaksono/alta-store-project:1.0.0

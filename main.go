@@ -7,6 +7,14 @@ import (
 )
 
 func main() {
+
+	// tambahan
+	// port := os.Getenv("PORT")
+	// if port == "" {
+	// 	log.Fatal("$PORT must be set")
+	// }
+	// end
+
 	config.InitDB()
 	config.InitMigrate()
 	e := routes.New()

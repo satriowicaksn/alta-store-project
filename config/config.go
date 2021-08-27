@@ -12,11 +12,11 @@ var DB *gorm.DB
 
 func InitDB() {
 	config := map[string]string{
-		"DB_Username": "satrio",
+		"DB_Username": "u6481136_satrio",
 		"DB_Password": "satrio12345",
 		"DB_Port":     "3306",
-		"DB_Host":     "127.0.0.1",
-		"DB_Name":     "alta_store",
+		"DB_Host":     "153.92.10.201",
+		"DB_Name":     "u6481136_alta_store",
 	}
 
 	connectionString :=

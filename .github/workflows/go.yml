@@ -17,13 +17,6 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.17
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
-     
     -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -43,4 +36,9 @@ jobs:
         with:
           push: true
           tags: satriowicaksono/alta-store-project:latest
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go test -v ./...
     

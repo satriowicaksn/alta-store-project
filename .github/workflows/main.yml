@@ -15,7 +15,7 @@ jobs:
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: docker build golang
       run: |
-        docker build -tag satriowicaksono/alta-store-project:1.0.0 .
+        docker build . -t satriowicaksono/alta-store-project:1.0.0
     - name: docker push
       run: |
         docker push satriowicaksono/alta-store-project:1.0.0

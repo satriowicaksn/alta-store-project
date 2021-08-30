@@ -3,6 +3,7 @@ package controllers
 import (
 	"alta-store-project/lib/database"
 	"alta-store-project/middlewares"
+	"alta-store-project/models"
 	"net/http"
 	"strconv"
 
@@ -13,17 +14,18 @@ func GetCheckoutTotalController(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
 	checkouts, err := database.GetCheckoutTotal(userId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if checkouts == false {
-		return c.JSON(http.StatusOK, map[string]interface{}{
-			"status":  "success",
-			"message": "your shopping cart is empty",
+		return c.JSON(http.StatusOK, models.Response{
+			Status:  "success",
+			Message: "your shopping cart is empty",
 		})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   checkouts,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get checkout data from your shopping cart",
+		Data:    checkouts,
 	})
 }
 
@@ -32,17 +34,18 @@ func GetCheckoutByIdController(c echo.Context) error {
 	cartItemId, _ := strconv.Atoi(c.Param("id"))
 	checkout, err := database.GetCheckoutTotalById(cartItemId, userId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if checkout == false {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "fail",
-			"message": "your requested data was not found",
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Status:  "fail",
+			Message: "your requested data was not found",
 		})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   checkout,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get checkout data from your shopping cart",
+		Data:    checkout,
 	})
 }
 
@@ -55,16 +58,17 @@ func PostCheckoutController(c echo.Context) error {
 	cartItemIdInt, _ := strconv.Atoi(cartItemId)
 	checkout, err := database.CheckoutItem(cartItemIdInt, userId)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if checkout == false {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "fail",
-			"message": "your requested data was not found",
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Status:  "fail",
+			Message: "your requested data was not found",
 		})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   checkout,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success checkout product from your shopping cart",
+		Data:    checkout,
 	})
 }

@@ -1,4 +1,4 @@
-name: Build Docker Image And Integration To Docker Hub
+name: Build Docker Image, Integration To Docker Hub and Deploy To Heroku
 
 on:
   push: 
@@ -10,18 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: docker login
-      env:
-        DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }} 
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}  
-      run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
         go-version: 1.16.6
     - name: Test
       run: go test -v ./...
+    - name: docker login
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }} 
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}  
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    
     - name: docker build golang
       run: |
         docker build . -t satriowicaksono/alta-store-project:1.0.0

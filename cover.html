@@ -69,23 +69,25 @@
 				
 				<option value="file6">alta-store-project/controllers/userController.go (41.0%)</option>
 				
-				<option value="file7">alta-store-project/lib/database/cart.go (0.0%)</option>
+				<option value="file7">alta-store-project/controllers/welcomeController.go (0.0%)</option>
 				
-				<option value="file8">alta-store-project/lib/database/checkout.go (0.0%)</option>
+				<option value="file8">alta-store-project/lib/database/cart.go (0.0%)</option>
 				
-				<option value="file9">alta-store-project/lib/database/payment.go (0.0%)</option>
+				<option value="file9">alta-store-project/lib/database/checkout.go (0.0%)</option>
 				
-				<option value="file10">alta-store-project/lib/database/product.go (33.3%)</option>
+				<option value="file10">alta-store-project/lib/database/payment.go (0.0%)</option>
 				
-				<option value="file11">alta-store-project/lib/database/productCategories.go (0.0%)</option>
+				<option value="file11">alta-store-project/lib/database/product.go (33.3%)</option>
 				
-				<option value="file12">alta-store-project/lib/database/user.go (29.3%)</option>
+				<option value="file12">alta-store-project/lib/database/productCategories.go (0.0%)</option>
 				
-				<option value="file13">alta-store-project/main.go (0.0%)</option>
+				<option value="file13">alta-store-project/lib/database/user.go (29.3%)</option>
 				
-				<option value="file14">alta-store-project/middlewares/jwtMiddleware.go (50.0%)</option>
+				<option value="file14">alta-store-project/main.go (0.0%)</option>
 				
-				<option value="file15">alta-store-project/routes/routes.go (0.0%)</option>
+				<option value="file15">alta-store-project/middlewares/jwtMiddleware.go (50.0%)</option>
+				
+				<option value="file16">alta-store-project/routes/routes.go (0.0%)</option>
 				
 				</select>
 			</div>
@@ -113,11 +115,11 @@ var DB *gorm.DB
 
 func InitDB() <span class="cov8" title="1">{
         config := map[string]string{
-                "DB_Username": "satrio",
+                "DB_Username": "u6481136_satrio",
                 "DB_Password": "satrio12345",
                 "DB_Port":     "3306",
-                "DB_Host":     "127.0.0.1",
-                "DB_Name":     "alta_store",
+                "DB_Host":     "153.92.10.201",
+                "DB_Name":     "u6481136_alta_store",
         }
 
         connectionString :=
@@ -153,6 +155,7 @@ func InitMigrate() <span class="cov0" title="0">{
 import (
         "alta-store-project/lib/database"
         "alta-store-project/middlewares"
+        "alta-store-project/models"
         "net/http"
         "strconv"
 
@@ -166,14 +169,15 @@ func GetCartController(c echo.Context) error <span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
         }</span>
         <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusOK, map[string]interface{}{
-                        "status":  "success",
-                        "message": "your shopping cart is empty",
+                return c.JSON(http.StatusOK, models.Response{
+                        Status:  "success",
+                        Message: "your shopping cart is empty",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   carts,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get your shopping cart",
+                Data:    carts,
         })</span>
 }
 
@@ -188,14 +192,15 @@ func AddCartController(c echo.Context) error <span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
         }</span>
         <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "product not found or out of stock",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "product not found or out of stock",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusCreated, map[string]interface{}{
-                "status": "success",
-                "data":   carts,
+        <span class="cov0" title="0">return c.JSON(http.StatusCreated, models.Response{
+                Status:  "success",
+                Message: "success add product to your shopping cart",
+                Data:    carts,
         })</span>
 }
 
@@ -207,16 +212,16 @@ func DeleteCartController(c echo.Context) error <span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
         }</span>
         <span class="cov0" title="0">if validate == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusForbidden, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "You do not have access to delete this data",
+                return c.JSON(http.StatusForbidden, models.Response{
+                        Status:  "fail",
+                        Message: "You do not have access to delete this data",
                 })
         }</span>
         <span class="cov0" title="0">database.ReturnStock(validateItem["product_id"], validateItem["qty"])
         database.DeleteCartItems(cartItemId)
-        return c.JSON(http.StatusOK, map[string]interface{}{
-                "status":  "success",
-                "message": "Product has been removed from your shopping cart",
+        return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "Product has been removed from your shopping cart",
         })</span>
 }
 </pre>
@@ -457,6 +462,7 @@ func DeleteProductCategoriesById(c echo.Context) error <span class="cov0" title=
 
 import (
         "alta-store-project/lib/database"
+        "alta-store-project/models"
         "net/http"
         "strconv"
 
@@ -469,9 +475,10 @@ func GetProductControllers(c echo.Context) error <span class="cov8" title="1">{
         if err != nil </span><span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
         }</span>
-        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   products,
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get all products",
+                Data:    products,
         })</span>
 }
 
@@ -483,14 +490,15 @@ func GetProductsByCategoryControllers(c echo.Context) error <span class="cov8" t
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
         }</span>
         <span class="cov8" title="1">if products == false </span><span class="cov8" title="1">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "products with requested category was not found",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "products with requested category was not found",
                 })
         }</span>
-        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   products,
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get products by category id",
+                Data:    products,
         })</span>
 }
 </pre>
@@ -599,7 +607,20 @@ func GetUserDetailController(c echo.Context) error <span class="cov8" title="1">
 }
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package database
+		<pre class="file" id="file7" style="display: none">package controllers
+
+import (
+        "net/http"
+
+        "github.com/labstack/echo/v4"
+)
+
+func WelcomeControllers(c echo.Context) error <span class="cov0" title="0">{
+        return c.String(http.StatusOK, "Welcome to Alta Store")
+}</span>
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -694,7 +715,7 @@ func ValidateCartItems(cartItemId, userId int) (bool, map[string]int, error) <sp
 }
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package database
+		<pre class="file" id="file9" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -854,7 +875,7 @@ func CheckoutItem(cartItemId, userId int) (interface{}, error) <span class="cov0
 // }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">package database
+		<pre class="file" id="file10" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -943,7 +964,7 @@ func CheckPaymentMethod(id int) bool <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">package database
+		<pre class="file" id="file11" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1008,7 +1029,7 @@ func ReturnStock(product_id, qty int) <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">package database
+		<pre class="file" id="file12" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1063,7 +1084,7 @@ func DeleteProductCategories(id int) (interface{}, error) <span class="cov0" tit
 }
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package database
+		<pre class="file" id="file13" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1145,34 +1166,32 @@ func LoginUsers(user *models.Users) (interface{}, error) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file13" style="display: none">package main
+		<pre class="file" id="file14" style="display: none">package main
 
 import (
         "alta-store-project/config"
         "alta-store-project/routes"
         "fmt"
-        "log"
-        "os"
 )
 
 func main() <span class="cov0" title="0">{
 
         // tambahan
-        port := os.Getenv("PORT")
-        if port == "" </span><span class="cov0" title="0">{
-                log.Fatal("$PORT must be set")
-        }</span>
+        // port := os.Getenv("PORT")
+        // if port == "" {
+        //         log.Fatal("$PORT must be set")
+        // }
         // end
 
-        <span class="cov0" title="0">config.InitDB()
+        config.InitDB()
         config.InitMigrate()
         e := routes.New()
-        e.Logger.Fatal(e.Start(":" + port))
-        fmt.Println("test midd")</span>
-}
+        e.Logger.Fatal(e.Start(":8000"))
+        fmt.Println("test midd")
+}</span>
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">package middlewares
+		<pre class="file" id="file15" style="display: none">package middlewares
 
 import (
         "alta-store-project/constants"
@@ -1203,7 +1222,7 @@ func ExtractTokenUserId(e echo.Context) int <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file15" style="display: none">package routes
+		<pre class="file" id="file16" style="display: none">package routes
 
 import (
         "alta-store-project/constants"
@@ -1215,7 +1234,8 @@ import (
 
 func New() *echo.Echo <span class="cov0" title="0">{
         e := echo.New()
-
+        e.GET("", controllers.WelcomeControllers)
+        e.GET("/cek", controllers.WelcomeControllers)
         // Product Categories
         e.GET("/categories", controllers.GetProductCategoriesControllers)
         e.GET("/categories/:id", controllers.GetProductCategoriesByIdControllers)

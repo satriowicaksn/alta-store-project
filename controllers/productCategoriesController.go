@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"alta-store-project/lib/database"
+	"alta-store-project/models"
 	"net/http"
 	"strconv"
 
@@ -12,11 +13,12 @@ func GetProductCategoriesControllers(c echo.Context) error {
 	categories, err := database.GetProductCategories()
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status":     "success",
-		"categories": categories,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get product categories",
+		Data:    categories,
 	})
 }
 
@@ -25,17 +27,18 @@ func GetProductCategoriesByIdControllers(c echo.Context) error {
 	categories, err := database.GetProductCategoriesById(id)
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if categories == false {
-		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status":  "fail",
-			"message": "requested category was not found",
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Status:  "fail",
+			Message: "requested category was not found",
 		})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   categories,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success getting data",
+		Data:    categories,
 	})
 }
 

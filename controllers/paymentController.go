@@ -39,8 +39,8 @@ func PostPaymentController(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, models.Response{
 		Status:  "success",
-		Message: "payment is being process",
-		Data:    payment,
+		Message: "payment success",
+		Data:    payloadData["payment_id"],
 	})
 }
 

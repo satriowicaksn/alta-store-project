@@ -10,7 +10,8 @@ import (
 
 func New() *echo.Echo {
 	e := echo.New()
-
+	e.GET("", controllers.WelcomeControllers)
+	e.GET("/cek", controllers.WelcomeControllers)
 	// Product Categories
 	e.GET("/categories", controllers.GetProductCategoriesControllers)
 	e.GET("/categories/:id", controllers.GetProductCategoriesByIdControllers)

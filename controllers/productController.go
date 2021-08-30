@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"alta-store-project/lib/database"
+	"alta-store-project/models"
 	"net/http"
 	"strconv"
 
@@ -14,9 +15,10 @@ func GetProductControllers(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   products,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get all products",
+		Data:    products,
 	})
 }
 
@@ -33,8 +35,9 @@ func GetProductsByCategoryControllers(c echo.Context) error {
 			"message": "products with requested category was not found",
 		})
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "success",
-		"data":   products,
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get products by category id",
+		Data:    products,
 	})
 }

@@ -5,6 +5,27 @@ import (
 	"alta-store-project/models"
 )
 
+func GetAllVoucher() (interface{}, error) {
+	var vouchers []models.Voucher
+	if e := config.DB.Find(&vouchers).Error; e != nil {
+		return nil, e
+	}
+	return vouchers, nil
+}
+
+func GetMyVoucher(userId int) (interface{}, error) {
+
+	var vouchers []models.My_voucher
+	query := config.DB.Raw("SELECT voucher_code, description, voucher_disc, minimum_transaction FROM user_vouchers LEFT JOIN vouchers ON vouchers.voucher_id = user_vouchers.voucher_id WHERE user_id = ? AND status = 1", userId).Scan(&vouchers)
+	if err := query.Error; err != nil {
+		return nil, err
+	}
+	if query.RowsAffected == 0 {
+		return false, nil
+	}
+	return vouchers, nil
+}
+
 func ClaimUserVoucher(userId, voucherId int) (bool, error) {
 	userVoucher := models.User_voucher{
 		User_id:    userId,
@@ -43,8 +64,7 @@ func GetVoucherDiscount(amount int, voucherCode string) int {
 		return vouchers.Voucher_disc
 	}
 	disc := amount * vouchers.Voucher_disc / 100
-	totalDisc := amount - disc
-	return totalDisc
+	return disc
 }
 
 func UseVoucher(user_voucher_id int) bool {

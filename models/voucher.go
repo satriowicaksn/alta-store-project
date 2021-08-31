@@ -27,3 +27,10 @@ type Payment_voucher struct {
 	Disc         int    `json:"discount"`
 	Final_bill   int    `json:"final_bill"`
 }
+
+type My_voucher struct {
+	Voucher_code        string `json:"voucher_code"`
+	Description         string `json:"description"`
+	Voucher_disc        int    `json:"disc"`
+	Minimum_transaction int    `json:"minimum_transaction"`
+}

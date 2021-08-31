@@ -5,7 +5,6 @@ import (
 	"alta-store-project/middlewares"
 	"alta-store-project/models"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -82,7 +81,7 @@ func GetPaymentHistoryController(c echo.Context) error {
 }
 
 func GetPaymentDetailsControllers(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
 	paymentDetails, err := database.GetPaymentDetails(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

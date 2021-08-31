@@ -33,7 +33,7 @@ func GetPaymentHistory(userId int) (interface{}, error) {
 	return payment, nil
 }
 
-func GetPaymentDetails(paymentId int) (interface{}, error) {
+func GetPaymentDetails(paymentId string) (interface{}, error) {
 	var paymentDetails []models.Payment_item
 	query := config.DB.Where("payment_id = ?", paymentId).Find(&paymentDetails)
 	if err := query.Error; err != nil {

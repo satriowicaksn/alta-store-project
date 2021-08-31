@@ -52,11 +52,25 @@ func GetCheckoutByIdController(c echo.Context) error {
 func PostCheckoutController(c echo.Context) error {
 	userId := middlewares.ExtractTokenUserId(c)
 	cartItemId := c.FormValue("cart_id")
+
+	voucherCode := c.FormValue("voucher_code")
+
+	// validasi jika menggunakan kode voucher
+	if voucherCode != "" {
+		validateVoucher, errString := database.ValidateUserVoucher(userId, voucherCode)
+		if !validateVoucher {
+			return c.JSON(http.StatusBadRequest, models.Response{
+				Status:  "fail",
+				Message: errString,
+			})
+		}
+	}
+
 	if cartItemId == "all" || cartItemId == "" {
 		cartItemId = "0"
 	}
 	cartItemIdInt, _ := strconv.Atoi(cartItemId)
-	checkout, err := database.CheckoutItem(cartItemIdInt, userId)
+	checkout, err := database.CheckoutItem(cartItemIdInt, userId, voucherCode)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

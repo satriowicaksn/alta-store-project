@@ -61,6 +61,10 @@ func RegisterUser(user *models.Users) (interface{}, error) {
 	if query.Error != nil {
 		return nil, query.Error
 	}
+	voucher, err := ClaimUserVoucher(int(user.User_id), 1)
+	if !voucher {
+		return nil, err
+	}
 	return user, nil
 }
 

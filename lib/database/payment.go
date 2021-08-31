@@ -33,6 +33,18 @@ func GetPaymentHistory(userId int) (interface{}, error) {
 	return payment, nil
 }
 
+func GetPaymentDetails(paymentId string) (interface{}, error) {
+	var paymentDetails []models.Payment_item
+	query := config.DB.Where("payment_id = ?", paymentId).Find(&paymentDetails)
+	if err := query.Error; err != nil {
+		return nil, err
+	}
+	if query.RowsAffected == 0 {
+		return false, nil
+	}
+	return paymentDetails, nil
+}
+
 func GetPendingPayment(userId int) (interface{}, error) {
 	var payment []models.Payment
 	query := config.DB.Where("user_id = ? AND payment_status = 0", userId).Find(&payment)
@@ -75,6 +87,22 @@ func PostPayment(userId int, payloadData map[string]string) (interface{}, error)
 		Payment_status: 1,
 	}
 	config.DB.Where("payment_id = ?", payloadData["payment_id"]).Updates(&paymentUpdate)
+
+	// fungsi untuk mengecek jumlah transaksi dan memberi voucher bonus ke user
+	var payment_history []models.Payment_history
+	query := config.DB.Raw("SELECT payment_id, payment_method_name, amount, payed_at FROM payments LEFT JOIN payment_methods ON payments.payment_method = payment_methods.payment_method_id WHERE user_id = ? AND payment_status = 1", userId).Scan(&payment_history)
+	if query.RowsAffected == 2 {
+		voucher, err := ClaimUserVoucher(userId, 2)
+		if !voucher {
+			return nil, err
+		}
+	} else if query.RowsAffected == 4 {
+		voucher, err := ClaimUserVoucher(userId, 2)
+		if !voucher {
+			return nil, err
+		}
+	}
+	// end
 	return paymentUpdate, nil
 }
 func CheckPaymentMethod(id int) bool {

@@ -23,6 +23,8 @@ func New() *echo.Echo {
 	e.GET("/products", controllers.GetProductControllers)
 	e.GET("/products/:id", controllers.GetProductsByCategoryControllers)
 
+	e.GET("/vouchers", controllers.GetAllVoucherController)
+
 	// User Authentication
 	e.POST("/login", controllers.LoginUserController)
 	e.POST("/register", controllers.RegisterUserController)
@@ -40,6 +42,7 @@ func New() *echo.Echo {
 	r.DELETE("/carts/:id", controllers.DeleteCartController)
 
 	// Checkout
+	r.GET("/myvoucher", controllers.GetMyVoucherController)
 	r.GET("/checkout", controllers.GetCheckoutTotalController)
 	r.GET("/checkout/:id", controllers.GetCheckoutByIdController)
 	r.POST("/checkout", controllers.PostCheckoutController)
@@ -48,6 +51,7 @@ func New() *echo.Echo {
 	r.GET("/payment_method", controllers.GetPaymentMethodController)
 	r.GET("/payment", controllers.GetPendingPaymentController)
 	r.GET("/payment_history", controllers.GetPaymentHistoryController)
+	r.GET("/payment_history/:id", controllers.GetPaymentDetailsControllers)
 	r.POST("/payment", controllers.PostPaymentController)
 	return e
 }

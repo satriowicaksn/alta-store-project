@@ -48,7 +48,7 @@ func ValidateUserVoucher(userId int, voucherCode string) (bool, string) {
 	user_voucher := models.User_voucher{}
 	validateVoucher := config.DB.Where("user_id = ? and voucher_id = ?", userId, voucherId).Find(&user_voucher)
 	if user_voucher.Status != 1 {
-		return false, "You have used this voucher code"
+		return false, "Voucher cannot be used"
 	}
 	if validateVoucher.RowsAffected == 0 {
 		return false, "You don't have this voucher"

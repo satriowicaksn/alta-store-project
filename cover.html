@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">alta-store-project/config/config.go (35.7%)</option>
+				<option value="file0">alta-store-project/config/config.go (29.4%)</option>
 				
 				<option value="file1">alta-store-project/controllers/cartController.go (0.0%)</option>
 				
@@ -67,27 +67,31 @@
 				
 				<option value="file5">alta-store-project/controllers/productController.go (81.8%)</option>
 				
-				<option value="file6">alta-store-project/controllers/userController.go (41.0%)</option>
+				<option value="file6">alta-store-project/controllers/userController.go (82.1%)</option>
 				
-				<option value="file7">alta-store-project/controllers/welcomeController.go (0.0%)</option>
+				<option value="file7">alta-store-project/controllers/voucherController.go (27.3%)</option>
 				
-				<option value="file8">alta-store-project/lib/database/cart.go (0.0%)</option>
+				<option value="file8">alta-store-project/controllers/welcomeController.go (0.0%)</option>
 				
-				<option value="file9">alta-store-project/lib/database/checkout.go (0.0%)</option>
+				<option value="file9">alta-store-project/lib/database/cart.go (0.0%)</option>
 				
-				<option value="file10">alta-store-project/lib/database/payment.go (0.0%)</option>
+				<option value="file10">alta-store-project/lib/database/checkout.go (0.0%)</option>
 				
-				<option value="file11">alta-store-project/lib/database/product.go (33.3%)</option>
+				<option value="file11">alta-store-project/lib/database/payment.go (0.0%)</option>
 				
-				<option value="file12">alta-store-project/lib/database/productCategories.go (0.0%)</option>
+				<option value="file12">alta-store-project/lib/database/product.go (33.3%)</option>
 				
-				<option value="file13">alta-store-project/lib/database/user.go (29.3%)</option>
+				<option value="file13">alta-store-project/lib/database/productCategories.go (0.0%)</option>
 				
-				<option value="file14">alta-store-project/main.go (0.0%)</option>
+				<option value="file14">alta-store-project/lib/database/user.go (81.8%)</option>
 				
-				<option value="file15">alta-store-project/middlewares/jwtMiddleware.go (50.0%)</option>
+				<option value="file15">alta-store-project/lib/database/voucher.go (15.4%)</option>
 				
-				<option value="file16">alta-store-project/routes/routes.go (0.0%)</option>
+				<option value="file16">alta-store-project/main.go (0.0%)</option>
+				
+				<option value="file17">alta-store-project/middlewares/jwtMiddleware.go (50.0%)</option>
+				
+				<option value="file18">alta-store-project/routes/routes.go (0.0%)</option>
 				
 				</select>
 			</div>
@@ -147,6 +151,11 @@ func InitMigrate() <span class="cov0" title="0">{
         DB.AutoMigrate(&amp;models.Payment_item{})
         DB.AutoMigrate(&amp;models.Users{})
         DB.AutoMigrate(&amp;models.Payment_method{})
+
+        // Auto migrate voucher table
+        DB.AutoMigrate(&amp;models.Voucher{})
+        DB.AutoMigrate(&amp;models.User_voucher{})
+        DB.AutoMigrate(&amp;models.Payment_voucher{})
 }</span>
 </pre>
 		
@@ -166,7 +175,7 @@ func GetCartController(c echo.Context) error <span class="cov0" title="0">{
         userId := middlewares.ExtractTokenUserId(c)
         carts, err := database.GetCarts(userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
                 return c.JSON(http.StatusOK, models.Response{
@@ -189,7 +198,7 @@ func AddCartController(c echo.Context) error <span class="cov0" title="0">{
 
         carts, err := database.AddCartItems(payloadData, userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if carts == false </span><span class="cov0" title="0">{
                 return c.JSON(http.StatusBadRequest, models.Response{
@@ -209,7 +218,7 @@ func DeleteCartController(c echo.Context) error <span class="cov0" title="0">{
         cartItemId, _ := strconv.Atoi(c.Param("id"))
         validate, validateItem, err := database.ValidateCartItems(cartItemId, userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if validate == false </span><span class="cov0" title="0">{
                 return c.JSON(http.StatusForbidden, models.Response{
@@ -231,6 +240,7 @@ func DeleteCartController(c echo.Context) error <span class="cov0" title="0">{
 import (
         "alta-store-project/lib/database"
         "alta-store-project/middlewares"
+        "alta-store-project/models"
         "net/http"
         "strconv"
 
@@ -241,17 +251,18 @@ func GetCheckoutTotalController(c echo.Context) error <span class="cov0" title="
         userId := middlewares.ExtractTokenUserId(c)
         checkouts, err := database.GetCheckoutTotal(userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if checkouts == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusOK, map[string]interface{}{
-                        "status":  "success",
-                        "message": "your shopping cart is empty",
+                return c.JSON(http.StatusOK, models.Response{
+                        Status:  "success",
+                        Message: "your shopping cart is empty",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   checkouts,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get checkout data from your shopping cart",
+                Data:    checkouts,
         })</span>
 }
 
@@ -260,40 +271,56 @@ func GetCheckoutByIdController(c echo.Context) error <span class="cov0" title="0
         cartItemId, _ := strconv.Atoi(c.Param("id"))
         checkout, err := database.GetCheckoutTotalById(cartItemId, userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if checkout == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "your requested data was not found",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "your requested data was not found",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   checkout,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get checkout data from your shopping cart",
+                Data:    checkout,
         })</span>
 }
 
 func PostCheckoutController(c echo.Context) error <span class="cov0" title="0">{
         userId := middlewares.ExtractTokenUserId(c)
         cartItemId := c.FormValue("cart_id")
-        if cartItemId == "all" || cartItemId == "" </span><span class="cov0" title="0">{
+
+        voucherCode := c.FormValue("voucher_code")
+
+        // validasi jika menggunakan kode voucher
+        if voucherCode != "" </span><span class="cov0" title="0">{
+                validateVoucher, errString := database.ValidateUserVoucher(userId, voucherCode)
+                if !validateVoucher </span><span class="cov0" title="0">{
+                        return c.JSON(http.StatusBadRequest, models.Response{
+                                Status:  "fail",
+                                Message: errString,
+                        })
+                }</span>
+        }
+
+        <span class="cov0" title="0">if cartItemId == "all" || cartItemId == "" </span><span class="cov0" title="0">{
                 cartItemId = "0"
         }</span>
         <span class="cov0" title="0">cartItemIdInt, _ := strconv.Atoi(cartItemId)
-        checkout, err := database.CheckoutItem(cartItemIdInt, userId)
+        checkout, err := database.CheckoutItem(cartItemIdInt, userId, voucherCode)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if checkout == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "your requested data was not found",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "your requested data was not found",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   checkout,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success checkout product from your shopping cart",
+                Data:    checkout,
         })</span>
 }
 </pre>
@@ -303,6 +330,7 @@ func PostCheckoutController(c echo.Context) error <span class="cov0" title="0">{
 import (
         "alta-store-project/lib/database"
         "alta-store-project/middlewares"
+        "alta-store-project/models"
         "net/http"
 
         "github.com/labstack/echo/v4"
@@ -311,11 +339,12 @@ import (
 func GetPaymentMethodController(c echo.Context) error <span class="cov0" title="0">{
         paymentMethod, err := database.GetPaymentMethod()
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   paymentMethod,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get payment method",
+                Data:    paymentMethod,
         })</span>
 }
 
@@ -327,17 +356,18 @@ func PostPaymentController(c echo.Context) error <span class="cov0" title="0">{
         payloadData["payment_method"] = c.FormValue("payment_method")
         payment, err := database.PostPayment(userId, payloadData)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if payment == "Payment method invalid" || payment == "This bill has been paid" || payment == "The bill you want to pay was not found" </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": payment,
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: payment,
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   payment,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "payment success",
+                Data:    payloadData["payment_id"],
         })</span>
 }
 
@@ -345,16 +375,17 @@ func GetPendingPaymentController(c echo.Context) error <span class="cov0" title=
         userId := middlewares.ExtractTokenUserId(c)
         payment, err := database.GetPendingPayment(userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span> else<span class="cov0" title="0"> if payment == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusOK, map[string]interface{}{
-                        "status":  "success",
-                        "message": "You don't have pending payment",
+                return c.JSON(http.StatusOK, models.Response{
+                        Status:  "success",
+                        Message: "You don't have pending payment",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   payment,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get pending payment",
+                Data:    payment,
         })</span>
 }
 
@@ -362,16 +393,35 @@ func GetPaymentHistoryController(c echo.Context) error <span class="cov0" title=
         userId := middlewares.ExtractTokenUserId(c)
         payment, err := database.GetPaymentHistory(userId)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span> else<span class="cov0" title="0"> if payment == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusOK, map[string]interface{}{
-                        "status":  "success",
-                        "message": "You don't have payment history",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "You don't have payment history",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   payment,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get payment history",
+                Data:    payment,
+        })</span>
+}
+
+func GetPaymentDetailsControllers(c echo.Context) error <span class="cov0" title="0">{
+        id := c.Param("id")
+        paymentDetails, err := database.GetPaymentDetails(id)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }</span> else<span class="cov0" title="0"> if paymentDetails == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusForbidden, models.Response{
+                        Status:  "fail",
+                        Message: "You don't have access to this data",
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get payment details",
+                Data:    paymentDetails,
         })</span>
 }
 </pre>
@@ -380,6 +430,7 @@ func GetPaymentHistoryController(c echo.Context) error <span class="cov0" title=
 
 import (
         "alta-store-project/lib/database"
+        "alta-store-project/models"
         "net/http"
         "strconv"
 
@@ -390,11 +441,12 @@ func GetProductCategoriesControllers(c echo.Context) error <span class="cov0" ti
         categories, err := database.GetProductCategories()
 
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status":     "success",
-                "categories": categories,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get product categories",
+                Data:    categories,
         })</span>
 }
 
@@ -403,17 +455,18 @@ func GetProductCategoriesByIdControllers(c echo.Context) error <span class="cov0
         categories, err := database.GetProductCategoriesById(id)
 
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov0" title="0">if categories == false </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "requested category was not found",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "requested category was not found",
                 })
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "data":   categories,
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success getting data",
+                Data:    categories,
         })</span>
 }
 
@@ -519,59 +572,61 @@ func LoginUserController(c echo.Context) error <span class="cov8" title="1">{
         c.Bind(&amp;user)
         _, e := database.LoginUsers(&amp;user)
         if e != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, e.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, e.Error())
         }</span>
-        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "login successfull",
-                "token":  user.Token,
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success login to your account",
+                Data:    user.Token,
         })</span>
 }
 
-func RegisterUserController(c echo.Context) error <span class="cov0" title="0">{
+func RegisterUserController(c echo.Context) error <span class="cov8" title="1">{
         u := new(models.Users)
         if err := c.Bind(u); err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
 
         // Validasi input harus terisi semuanya
-        <span class="cov0" title="0">validateInput, field := database.ValidateInput(u)
-        if !validateInput </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": field + " field is required !!",
+        <span class="cov8" title="1">validateInput, field := database.ValidateInput(u)
+        if !validateInput </span><span class="cov8" title="1">{
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: field + " field is required !!",
                 })
         }</span>
 
         // validasi registered email
-        <span class="cov0" title="0">validateEmail, err := database.ValidateEmail(u.Email)
+        <span class="cov8" title="1">validateEmail, err := database.ValidateEmail(u.Email)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-        }</span> else<span class="cov0" title="0"> if !validateEmail </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "Email is already registered, please use another email",
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }</span> else<span class="cov8" title="1"> if !validateEmail </span><span class="cov8" title="1">{
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "Email is already registered, please use another email",
                 })
         }</span>
 
         // validasi registered phone number
-        <span class="cov0" title="0">validatePhone, err := database.ValidatePhone(u.Phone)
+        <span class="cov8" title="1">validatePhone, err := database.ValidatePhone(u.Phone)
         if err != nil </span><span class="cov0" title="0">{
                 return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-        }</span> else<span class="cov0" title="0"> if !validatePhone </span><span class="cov0" title="0">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "Phone number is already registered, please use another phone number",
+        }</span> else<span class="cov8" title="1"> if !validatePhone </span><span class="cov8" title="1">{
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "Phone number is already registered, please use another phone number",
                 })
         }</span>
 
         // input ke database
-        <span class="cov0" title="0">registered, err := database.RegisterUser(u)
+        <span class="cov8" title="1">registered, err := database.RegisterUser(u)
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
-        <span class="cov0" title="0">return c.JSON(http.StatusCreated, map[string]interface{}{
-                "status": "Register success",
-                "data":   registered,
+        <span class="cov8" title="1">return c.JSON(http.StatusCreated, models.Response{
+                Status:  "success",
+                Message: "success to registered your account",
+                Data:    registered,
         })</span>
 }
 
@@ -583,7 +638,7 @@ func GetUserDetailController(c echo.Context) error <span class="cov8" title="1">
         if params != "" </span><span class="cov8" title="1">{
                 idInt, e := strconv.Atoi(params)
                 if e != nil </span><span class="cov0" title="0">{
-                        return echo.NewHTTPError(http.StatusBadRequest, e.Error())
+                        return echo.NewHTTPError(http.StatusInternalServerError, e.Error())
                 }</span>
                 <span class="cov8" title="1">id = idInt</span>
         }
@@ -591,23 +646,67 @@ func GetUserDetailController(c echo.Context) error <span class="cov8" title="1">
 
         <span class="cov8" title="1">users, err := database.GetDetailUsers((id))
         if err != nil </span><span class="cov0" title="0">{
-                return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
         }</span>
         <span class="cov8" title="1">if users == false </span><span class="cov8" title="1">{
-                return c.JSON(http.StatusBadRequest, map[string]interface{}{
-                        "status":  "fail",
-                        "message": "user with requested ID was not found",
+                return c.JSON(http.StatusBadRequest, models.Response{
+                        Status:  "fail",
+                        Message: "user with requested ID was not found",
                 })
         }</span>
 
-        <span class="cov8" title="1">return c.JSON(http.StatusOK, map[string]interface{}{
-                "status": "success",
-                "users":  users,
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success getting data",
+                Data:    users,
         })</span>
 }
 </pre>
 		
 		<pre class="file" id="file7" style="display: none">package controllers
+
+import (
+        "alta-store-project/lib/database"
+        "alta-store-project/middlewares"
+        "alta-store-project/models"
+        "net/http"
+
+        "github.com/labstack/echo/v4"
+)
+
+func GetAllVoucherController(c echo.Context) error <span class="cov8" title="1">{
+        vouchers, err := database.GetAllVoucher()
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }</span>
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get all vouchers",
+                Data:    vouchers,
+        })</span>
+}
+
+func GetMyVoucherController(c echo.Context) error <span class="cov0" title="0">{
+        userId := middlewares.ExtractTokenUserId(c)
+        vouchers, err := database.GetMyVoucher(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+        }</span> else<span class="cov0" title="0"> if vouchers == false </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusOK, models.Response{
+                        Status:  "fail",
+                        Message: "You don't have a voucher, make a purchase to get it",
+                        Data:    vouchers,
+                })
+        }</span>
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, models.Response{
+                Status:  "success",
+                Message: "success get your vouchers",
+                Data:    vouchers,
+        })</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package controllers
 
 import (
         "net/http"
@@ -620,7 +719,7 @@ func WelcomeControllers(c echo.Context) error <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file8" style="display: none">package database
+		<pre class="file" id="file9" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -715,7 +814,7 @@ func ValidateCartItems(cartItemId, userId int) (bool, map[string]int, error) <sp
 }
 </pre>
 		
-		<pre class="file" id="file9" style="display: none">package database
+		<pre class="file" id="file10" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -760,7 +859,7 @@ func GetCheckoutTotalById(cartItemId, userId int) (interface{}, error) <span cla
         <span class="cov0" title="0">return checkout, nil</span>
 }
 
-func CheckoutItem(cartItemId, userId int) (interface{}, error) <span class="cov0" title="0">{
+func CheckoutItem(cartItemId, userId int, voucherCode string) (interface{}, error) <span class="cov0" title="0">{
         paymentId := CreatePaymentId()
         cartId := CheckCart(userId)
 
@@ -790,11 +889,32 @@ func CheckoutItem(cartItemId, userId int) (interface{}, error) <span class="cov0
                 config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_id = ?", cartId).Find(&amp;checkout)
         }</span>
 
+        <span class="cov0" title="0">totalAmount := checkout.Amount
+        if voucherCode != "" </span><span class="cov0" title="0">{
+                disc := GetVoucherDiscount(totalAmount, voucherCode)
+                totalAmount = totalAmount - disc
+                payment_voucher := models.Payment_voucher{
+                        Payment_id:   paymentId,
+                        Voucher_code: voucherCode,
+                        Total_bill:   checkout.Amount,
+                        Disc:         disc,
+                        Final_bill:   totalAmount,
+                }
+                config.DB.Create(&amp;payment_voucher)
+
+                voucherDetail := models.Voucher{}
+                config.DB.Where("voucher_code = ?", voucherCode).Find(&amp;voucherDetail)
+                voucherUser := models.User_voucher{}
+                config.DB.Where("user_id = ? and voucher_id = ?", userId, voucherDetail.Voucher_id).Find(&amp;voucherUser)
+                voucherUser.Status = 0
+                config.DB.Save(&amp;voucherUser)
+        }</span>
+
         // masukkan informasi payment
         <span class="cov0" title="0">payment := models.Payment{
                 Payment_id:     paymentId,
                 User_id:        userId,
-                Amount:         checkout.Amount,
+                Amount:         totalAmount,
                 Payment_status: 0,
                 Created_at:     time.Now(),
                 Expired_at:     time.Now().AddDate(0, 0, 1),
@@ -875,7 +995,7 @@ func CheckoutItem(cartItemId, userId int) (interface{}, error) <span class="cov0
 // }
 </pre>
 		
-		<pre class="file" id="file10" style="display: none">package database
+		<pre class="file" id="file11" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -908,6 +1028,18 @@ func GetPaymentHistory(userId int) (interface{}, error) <span class="cov0" title
                 return false, nil
         }</span>
         <span class="cov0" title="0">return payment, nil</span>
+}
+
+func GetPaymentDetails(paymentId string) (interface{}, error) <span class="cov0" title="0">{
+        var paymentDetails []models.Payment_item
+        query := config.DB.Where("payment_id = ?", paymentId).Find(&amp;paymentDetails)
+        if err := query.Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return paymentDetails, nil</span>
 }
 
 func GetPendingPayment(userId int) (interface{}, error) <span class="cov0" title="0">{
@@ -952,7 +1084,23 @@ func PostPayment(userId int, payloadData map[string]string) (interface{}, error)
                 Payment_status: 1,
         }
         config.DB.Where("payment_id = ?", payloadData["payment_id"]).Updates(&amp;paymentUpdate)
-        return paymentUpdate, nil</span>
+
+        // fungsi untuk mengecek jumlah transaksi dan memberi voucher bonus ke user
+        var payment_history []models.Payment_history
+        query := config.DB.Raw("SELECT payment_id, payment_method_name, amount, payed_at FROM payments LEFT JOIN payment_methods ON payments.payment_method = payment_methods.payment_method_id WHERE user_id = ? AND payment_status = 1", userId).Scan(&amp;payment_history)
+        if query.RowsAffected == 2 </span><span class="cov0" title="0">{
+                voucher, err := ClaimUserVoucher(userId, 2)
+                if !voucher </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        } else<span class="cov0" title="0"> if query.RowsAffected == 4 </span><span class="cov0" title="0">{
+                voucher, err := ClaimUserVoucher(userId, 2)
+                if !voucher </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+        }
+        // end
+        <span class="cov0" title="0">return paymentUpdate, nil</span>
 }
 func CheckPaymentMethod(id int) bool <span class="cov0" title="0">{
         paymentMethod := models.Payment_method{}
@@ -964,7 +1112,7 @@ func CheckPaymentMethod(id int) bool <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file11" style="display: none">package database
+		<pre class="file" id="file12" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1029,7 +1177,7 @@ func ReturnStock(product_id, qty int) <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file12" style="display: none">package database
+		<pre class="file" id="file13" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1084,7 +1232,7 @@ func DeleteProductCategories(id int) (interface{}, error) <span class="cov0" tit
 }
 </pre>
 		
-		<pre class="file" id="file13" style="display: none">package database
+		<pre class="file" id="file14" style="display: none">package database
 
 import (
         "alta-store-project/config"
@@ -1103,51 +1251,55 @@ func GetDetailUsers(userId int) (interface{}, error) <span class="cov8" title="1
         <span class="cov8" title="1">return user, nil</span>
 }
 
-func ValidateEmail(email string) (bool, error) <span class="cov0" title="0">{
+func ValidateEmail(email string) (bool, error) <span class="cov8" title="1">{
         var user models.Users
         query := config.DB.Where("email = ?", email).Find(&amp;user)
         if query.Error != nil </span><span class="cov0" title="0">{
                 return false, query.Error
-        }</span> else<span class="cov0" title="0"> if query.RowsAffected != 0 </span><span class="cov0" title="0">{
+        }</span> else<span class="cov8" title="1"> if query.RowsAffected != 0 </span><span class="cov8" title="1">{
                 return false, nil
         }</span>
-        <span class="cov0" title="0">return true, nil</span>
+        <span class="cov8" title="1">return true, nil</span>
 }
 
-func ValidatePhone(phone string) (bool, error) <span class="cov0" title="0">{
+func ValidatePhone(phone string) (bool, error) <span class="cov8" title="1">{
         var user models.Users
         query := config.DB.Where("phone = ?", phone).Find(&amp;user)
         if query.Error != nil </span><span class="cov0" title="0">{
                 return false, query.Error
-        }</span> else<span class="cov0" title="0"> if query.RowsAffected != 0 </span><span class="cov0" title="0">{
+        }</span> else<span class="cov8" title="1"> if query.RowsAffected != 0 </span><span class="cov8" title="1">{
                 return false, nil
         }</span>
-        <span class="cov0" title="0">return true, nil</span>
+        <span class="cov8" title="1">return true, nil</span>
 }
 
-func ValidateInput(user *models.Users) (bool, string) <span class="cov0" title="0">{
+func ValidateInput(user *models.Users) (bool, string) <span class="cov8" title="1">{
         switch </span>{
-        case user.Name == "":<span class="cov0" title="0">
+        case user.Name == "":<span class="cov8" title="1">
                 return false, "name"</span>
-        case user.Email == "":<span class="cov0" title="0">
+        case user.Email == "":<span class="cov8" title="1">
                 return false, "email"</span>
-        case user.Phone == "":<span class="cov0" title="0">
+        case user.Phone == "":<span class="cov8" title="1">
                 return false, "phone number"</span>
-        case user.Password == "":<span class="cov0" title="0">
+        case user.Password == "":<span class="cov8" title="1">
                 return false, "password"</span>
-        case user.Address == "":<span class="cov0" title="0">
+        case user.Address == "":<span class="cov8" title="1">
                 return false, "address"</span>
         }
 
-        <span class="cov0" title="0">return true, ""</span>
+        <span class="cov8" title="1">return true, ""</span>
 }
 
-func RegisterUser(user *models.Users) (interface{}, error) <span class="cov0" title="0">{
+func RegisterUser(user *models.Users) (interface{}, error) <span class="cov8" title="1">{
         query := config.DB.Create(user)
         if query.Error != nil </span><span class="cov0" title="0">{
                 return nil, query.Error
         }</span>
-        <span class="cov0" title="0">return user, nil</span>
+        <span class="cov8" title="1">voucher, err := ClaimUserVoucher(int(user.User_id), 1)
+        if !voucher </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return user, nil</span>
 }
 
 func LoginUsers(user *models.Users) (interface{}, error) <span class="cov8" title="1">{
@@ -1166,7 +1318,88 @@ func LoginUsers(user *models.Users) (interface{}, error) <span class="cov8" titl
 }
 </pre>
 		
-		<pre class="file" id="file14" style="display: none">package main
+		<pre class="file" id="file15" style="display: none">package database
+
+import (
+        "alta-store-project/config"
+        "alta-store-project/models"
+)
+
+func GetAllVoucher() (interface{}, error) <span class="cov8" title="1">{
+        var vouchers []models.Voucher
+        if e := config.DB.Find(&amp;vouchers).Error; e != nil </span><span class="cov0" title="0">{
+                return nil, e
+        }</span>
+        <span class="cov8" title="1">return vouchers, nil</span>
+}
+
+func GetMyVoucher(userId int) (interface{}, error) <span class="cov0" title="0">{
+
+        var vouchers []models.My_voucher
+        query := config.DB.Raw("SELECT voucher_code, description, voucher_disc, minimum_transaction FROM user_vouchers LEFT JOIN vouchers ON vouchers.voucher_id = user_vouchers.voucher_id WHERE user_id = ? AND status = 1", userId).Scan(&amp;vouchers)
+        if err := query.Error; err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov0" title="0">if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, nil
+        }</span>
+        <span class="cov0" title="0">return vouchers, nil</span>
+}
+
+func ClaimUserVoucher(userId, voucherId int) (bool, error) <span class="cov8" title="1">{
+        userVoucher := models.User_voucher{
+                User_id:    userId,
+                Voucher_id: voucherId,
+                Status:     1,
+        }
+        if err := config.DB.Create(&amp;userVoucher).Error; err != nil </span><span class="cov0" title="0">{
+                return false, err
+        }</span>
+        <span class="cov8" title="1">return true, nil</span>
+}
+
+func ValidateUserVoucher(userId int, voucherCode string) (bool, string) <span class="cov0" title="0">{
+        vouchers := models.Voucher{}
+        getVoucherDetail := config.DB.Where("voucher_code = ?", voucherCode).Find(&amp;vouchers)
+        if getVoucherDetail.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, "Invalid voucher code"
+        }</span>
+        <span class="cov0" title="0">voucherId := vouchers.Voucher_id
+        user_voucher := models.User_voucher{}
+        validateVoucher := config.DB.Where("user_id = ? and voucher_id = ?", userId, voucherId).Find(&amp;user_voucher)
+        if user_voucher.Status != 1 </span><span class="cov0" title="0">{
+                return false, "Voucher cannot be used"
+        }</span>
+        <span class="cov0" title="0">if validateVoucher.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false, "You don't have this voucher"
+        }</span>
+        <span class="cov0" title="0">return true, ""</span>
+}
+
+func GetVoucherDiscount(amount int, voucherCode string) int <span class="cov0" title="0">{
+        vouchers := models.Voucher{}
+        config.DB.Where("voucher_code = ?", voucherCode).Find(&amp;vouchers)
+        voucherType := vouchers.Voucher_type
+        if voucherType == 1 </span><span class="cov0" title="0">{
+                return vouchers.Voucher_disc
+        }</span>
+        <span class="cov0" title="0">disc := amount * vouchers.Voucher_disc / 100
+        return disc</span>
+}
+
+func UseVoucher(user_voucher_id int) bool <span class="cov0" title="0">{
+        userVoucher := models.User_voucher{
+                Status: 0,
+        }
+        query := config.DB.Where("user_voucher_id = ?", user_voucher_id).Updates(&amp;userVoucher)
+        if query.RowsAffected == 0 </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov0" title="0">return true</span>
+}
+</pre>
+		
+		<pre class="file" id="file16" style="display: none">package main
 
 import (
         "alta-store-project/config"
@@ -1191,7 +1424,7 @@ func main() <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file15" style="display: none">package middlewares
+		<pre class="file" id="file17" style="display: none">package middlewares
 
 import (
         "alta-store-project/constants"
@@ -1222,7 +1455,7 @@ func ExtractTokenUserId(e echo.Context) int <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file16" style="display: none">package routes
+		<pre class="file" id="file18" style="display: none">package routes
 
 import (
         "alta-store-project/constants"
@@ -1247,6 +1480,8 @@ func New() *echo.Echo <span class="cov0" title="0">{
         e.GET("/products", controllers.GetProductControllers)
         e.GET("/products/:id", controllers.GetProductsByCategoryControllers)
 
+        e.GET("/vouchers", controllers.GetAllVoucherController)
+
         // User Authentication
         e.POST("/login", controllers.LoginUserController)
         e.POST("/register", controllers.RegisterUserController)
@@ -1264,6 +1499,7 @@ func New() *echo.Echo <span class="cov0" title="0">{
         r.DELETE("/carts/:id", controllers.DeleteCartController)
 
         // Checkout
+        r.GET("/myvoucher", controllers.GetMyVoucherController)
         r.GET("/checkout", controllers.GetCheckoutTotalController)
         r.GET("/checkout/:id", controllers.GetCheckoutByIdController)
         r.POST("/checkout", controllers.PostCheckoutController)
@@ -1272,6 +1508,7 @@ func New() *echo.Echo <span class="cov0" title="0">{
         r.GET("/payment_method", controllers.GetPaymentMethodController)
         r.GET("/payment", controllers.GetPendingPaymentController)
         r.GET("/payment_history", controllers.GetPaymentHistoryController)
+        r.GET("/payment_history/:id", controllers.GetPaymentDetailsControllers)
         r.POST("/payment", controllers.PostPaymentController)
         return e
 }</span>

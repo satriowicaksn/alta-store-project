@@ -5,6 +5,7 @@ import (
 	"alta-store-project/middlewares"
 	"alta-store-project/models"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -68,8 +69,8 @@ func GetPaymentHistoryController(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	} else if payment == false {
-		return c.JSON(http.StatusOK, models.Response{
-			Status:  "success",
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Status:  "fail",
 			Message: "You don't have payment history",
 		})
 	}
@@ -77,5 +78,23 @@ func GetPaymentHistoryController(c echo.Context) error {
 		Status:  "success",
 		Message: "success get payment history",
 		Data:    payment,
+	})
+}
+
+func GetPaymentDetailsControllers(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	paymentDetails, err := database.GetPaymentDetails(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	} else if paymentDetails == false {
+		return c.JSON(http.StatusForbidden, models.Response{
+			Status:  "fail",
+			Message: "You don't have access to this data",
+		})
+	}
+	return c.JSON(http.StatusOK, models.Response{
+		Status:  "success",
+		Message: "success get payment details",
+		Data:    paymentDetails,
 	})
 }

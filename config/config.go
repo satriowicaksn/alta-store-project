@@ -44,4 +44,9 @@ func InitMigrate() {
 	DB.AutoMigrate(&models.Payment_item{})
 	DB.AutoMigrate(&models.Users{})
 	DB.AutoMigrate(&models.Payment_method{})
+
+	// Auto migrate voucher table
+	DB.AutoMigrate(&models.Voucher{})
+	DB.AutoMigrate(&models.User_voucher{})
+	DB.AutoMigrate(&models.Payment_voucher{})
 }

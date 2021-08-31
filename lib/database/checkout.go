@@ -43,7 +43,7 @@ func GetCheckoutTotalById(cartItemId, userId int) (interface{}, error) {
 	return checkout, nil
 }
 
-func CheckoutItem(cartItemId, userId int) (interface{}, error) {
+func CheckoutItem(cartItemId, userId int, voucherCode string) (interface{}, error) {
 	paymentId := CreatePaymentId()
 	cartId := CheckCart(userId)
 
@@ -73,11 +73,32 @@ func CheckoutItem(cartItemId, userId int) (interface{}, error) {
 		config.DB.Raw("SELECT SUM(qty) AS item_total, SUM(cart_items.price*qty) AS amount, product_name AS product FROM cart_items LEFT JOIN products ON cart_items.product_id = products.product_id WHERE cart_id = ?", cartId).Find(&checkout)
 	}
 
+	totalAmount := checkout.Amount
+	if voucherCode != "" {
+		disc := GetVoucherDiscount(totalAmount, voucherCode)
+		totalAmount = totalAmount - disc
+		payment_voucher := models.Payment_voucher{
+			Payment_id:   paymentId,
+			Voucher_code: voucherCode,
+			Total_bill:   checkout.Amount,
+			Disc:         disc,
+			Final_bill:   totalAmount,
+		}
+		config.DB.Create(&payment_voucher)
+
+		voucherDetail := models.Voucher{}
+		config.DB.Where("voucher_code = ?", voucherCode).Find(&voucherDetail)
+		voucherUser := models.User_voucher{}
+		config.DB.Where("user_id = ? and voucher_id = ?", userId, voucherDetail.Voucher_id).Find(&voucherUser)
+		voucherUser.Status = 0
+		config.DB.Save(&voucherUser)
+	}
+
 	// masukkan informasi payment
 	payment := models.Payment{
 		Payment_id:     paymentId,
 		User_id:        userId,
-		Amount:         checkout.Amount,
+		Amount:         totalAmount,
 		Payment_status: 0,
 		Created_at:     time.Now(),
 		Expired_at:     time.Now().AddDate(0, 0, 1),

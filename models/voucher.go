@@ -14,9 +14,10 @@ type Voucher struct {
 }
 
 type User_voucher struct {
-	User_id    int `json:"user_id"`
-	Voucher_id int `json:"voucher_id"`
-	Status     int `json:"status"`
+	User_voucher_id int `json:"user_voucher_id" gorm:"primaryKey"`
+	User_id         int `json:"user_id"`
+	Voucher_id      int `json:"voucher_id"`
+	Status          int `json:"status"`
 }
 
 type Payment_voucher struct {
